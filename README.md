@@ -1,2 +1,1 @@
-# auroramart
-AuroraMart is a venture-backed B2C e-commerce start-up aimed at the mass-affluent and value-conscious shopper in Southeast Asia.
+AuroraMart is a venture-backed B2C e-commerce start-up aimed at the mass-affluent and value-conscious shopper in Southeast Asia. The product catalogue spans Electronics, Fashion (Men & Women), Home & Kitchen, Beauty & Personal Care, Sports & Outdoors, Books, Groceries & Gourmet, and more, curated to offer breadth without decision fatigue. The brand voice is practical, upbeat, and trustworthy: think “everyday quality without the luxury markup.” AuroraMart’s pitch to investors is simple: win the first session, keep the second.

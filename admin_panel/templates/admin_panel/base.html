@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="autumn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AuroraMart Admin{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar-hidden {
+            transform: translateX(-100%);
+        }
+        @media (min-width: 768px) {
+            .sidebar-hidden {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Mobile sidebar toggle -->
+    <div class="md:hidden fixed top-4 left-4 z-50">
+        <button id="sidebar-toggle" class="btn btn-sm btn-primary">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg sidebar-transition sidebar-hidden md:translate-x-0">
+        <div class="flex items-center justify-between h-16 px-6 border-b">
+            <div class="flex items-center">
+                <a href="{% url 'admin_panel:dashboard' %}" class="flex items-center hover:opacity-80 transition-opacity">
+                    <img src="/media/AuroraMart Logo.png" alt="AuroraMart" class="h-8 w-8 mr-2">
+                    <h1 class="text-xl font-bold text-blue-600">AuroraMart Admin</h1>
+                </a>
+            </div>
+        </div>
+        
+        <nav class="mt-6 px-3">
+            {% if admin_user %}
+                <div class="mb-6 p-3 bg-blue-50 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="avatar placeholder">
+                            <div class="bg-blue-500 text-white rounded-full w-10">
+                                <span class="text-sm">{{ admin_user.user.first_name|first }}{{ admin_user.user.last_name|first }}</span>
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">{{ admin_user.user.get_full_name }}</p>
+                            <p class="text-xs text-gray-500">{% if admin_user.role %}{{ admin_user.role.get_name_display }}{% else %}No Role{% endif %}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <ul class="space-y-2">
+                {% for item in menu_items %}
+                <li>
+                    <a href="{% url item.url %}" 
+                       class="flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors
+                              {% if request.resolver_match.url_name == item.url|slice:'12:' %}bg-blue-100 text-blue-700{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+                        <i class="fas fa-{{ item.icon }} w-5 h-5 mr-3"></i>
+                        {{ item.name }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </nav>
+
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t">
+            <a href="{% url 'admin_panel:logout' %}" class="flex items-center px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                <i class="fas fa-sign-out-alt w-5 h-5 mr-3"></i>
+                Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="md:ml-64 min-h-screen">
+        <!-- Top bar -->
+        <div class="bg-white shadow-sm border-b h-16 flex items-center justify-between px-6">
+            <div class="flex items-center">
+                {% block back_button %}
+                {% if request.resolver_match.url_name != 'dashboard' %}
+                <a href="{% url 'admin_panel:dashboard' %}" class="btn btn-ghost btn-sm mr-4">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to Dashboard
+                </a>
+                {% endif %}
+                {% endblock %}
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">{% block page_title %}Dashboard{% endblock %}</h2>
+                    {% block breadcrumbs %}{% endblock %}
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <!-- Notifications -->
+                <div class="dropdown dropdown-end">
+                    <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+                        <div class="indicator">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span class="badge badge-xs badge-primary indicator-item">3</span>
+                        </div>
+                    </div>
+                    <div tabindex="0" class="mt-3 z-[1] card card-compact dropdown-content w-52 bg-base-100 shadow">
+                        <div class="card-body">
+                            <span class="font-bold text-lg">Notifications</span>
+                            <span class="text-info">Low stock alerts: 5 items</span>
+                            <span class="text-info">New orders: 12 pending</span>
+                            <span class="text-info">System update available</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User menu -->
+                <div class="dropdown dropdown-end">
+                    <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                        <div class="w-10 rounded-full bg-blue-500 text-white flex items-center justify-center">
+                            <span class="text-sm font-medium">{{ admin_user.user.first_name|first }}{{ admin_user.user.last_name|first }}</span>
+                        </div>
+                    </div>
+                    <ul tabindex="0" class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
+                        <li><a href="{% url 'admin_panel:password_change' %}"><i class="fas fa-key mr-2"></i>Change Password</a></li>
+                        <li><a href="{% url 'admin_panel:logout' %}"><i class="fas fa-sign-out-alt mr-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page content -->
+        <main class="p-6">
+            <!-- Messages -->
+            {% if messages %}
+                <div class="mb-6">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} mb-2">
+                            <i class="fas fa-{% if message.tags == 'error' %}exclamation-triangle{% elif message.tags == 'success' %}check-circle{% elif message.tags == 'warning' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Sidebar overlay for mobile -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+
+    <script>
+        // Mobile sidebar toggle
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('sidebar-hidden');
+            sidebarOverlay.classList.toggle('hidden');
+        });
+
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.add('sidebar-hidden');
+            sidebarOverlay.classList.add('hidden');
+        });
+
+        // Auto-hide alerts after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

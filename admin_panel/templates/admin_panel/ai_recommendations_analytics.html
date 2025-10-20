@@ -1,0 +1,155 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}AI Recommendations Analytics - AuroraMart Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">AI Recommendations Analytics</h1>
+            <p class="text-gray-600 mt-2">Track performance of AI-powered product recommendations</p>
+        </div>
+        <div class="flex space-x-4">
+            <a href="{% url 'admin_panel:association_rules_dashboard' %}" class="btn btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Rules
+            </a>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div class="text-3xl font-bold text-blue-600">{{ analytics_data.total_recommendations_shown }}</div>
+            <div class="text-sm text-gray-600">Recommendations Shown</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div class="text-3xl font-bold text-green-600">{{ analytics_data.total_clicks }}</div>
+            <div class="text-sm text-gray-600">Total Clicks</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div class="text-3xl font-bold text-purple-600">{{ analytics_data.total_add_to_cart }}</div>
+            <div class="text-sm text-gray-600">Add to Cart</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div class="text-3xl font-bold text-orange-600">{{ analytics_data.total_purchases }}</div>
+            <div class="text-sm text-gray-600">Purchases</div>
+        </div>
+    </div>
+
+    <!-- Performance Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div class="text-3xl font-bold text-blue-600">{{ analytics_data.click_through_rate|floatformat:1 }}%</div>
+            <div class="text-sm text-gray-600">Click-Through Rate</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div class="text-3xl font-bold text-green-600">{{ analytics_data.conversion_rate|floatformat:1 }}%</div>
+            <div class="text-sm text-gray-600">Conversion Rate</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div class="text-3xl font-bold text-purple-600">+{{ analytics_data.average_order_value_lift|floatformat:1 }}%</div>
+            <div class="text-sm text-gray-600">AOV Lift</div>
+        </div>
+    </div>
+
+    <!-- Top Performing Rules -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Top Performing Rules</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th>Rule</th>
+                        <th>Clicks</th>
+                        <th>Conversions</th>
+                        <th>CTR</th>
+                        <th>Conversion Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rule in top_rules %}
+                    <tr>
+                        <td>
+                            <div class="text-sm">
+                                <div class="font-semibold">{{ rule.rule_id }}</div>
+                                <div class="text-gray-600">{{ rule.antecedent }} → {{ rule.consequent }}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="font-semibold">{{ rule.clicks }}</span>
+                        </td>
+                        <td>
+                            <span class="font-semibold">{{ rule.conversions }}</span>
+                        </td>
+                        <td>
+                            <span class="font-semibold">{{ rule.ctr|floatformat:1 }}%</span>
+                        </td>
+                        <td>
+                            <span class="font-semibold">{{ rule.conversion_rate|floatformat:1 }}%</span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-8 text-gray-500">
+                            No performance data available yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Performance Insights -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- CTR Trends -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Click-Through Rate Trends</h3>
+            <div class="text-center py-8">
+                <div class="text-4xl font-bold text-blue-600 mb-2">{{ analytics_data.click_through_rate|floatformat:1 }}%</div>
+                <div class="text-sm text-gray-600">Average CTR</div>
+                <div class="text-xs text-gray-500 mt-2">Above industry average of 2-5%</div>
+            </div>
+        </div>
+
+        <!-- Conversion Funnel -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Conversion Funnel</h3>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Recommendations Shown</span>
+                    <span class="font-semibold">{{ analytics_data.total_recommendations_shown }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Clicks</span>
+                    <span class="font-semibold">{{ analytics_data.total_clicks }} ({{ analytics_data.click_through_rate|floatformat:1 }}%)</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Add to Cart</span>
+                    <span class="font-semibold">{{ analytics_data.total_add_to_cart }} ({{ analytics_data.add_to_cart_rate|floatformat:1 }}%)</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Purchases</span>
+                    <span class="font-semibold">{{ analytics_data.total_purchases }} ({{ analytics_data.conversion_rate|floatformat:1 }}%)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-8">
+        <h3 class="text-lg font-semibold text-blue-800 mb-4">AI Recommendations</h3>
+        <div class="text-sm text-blue-700 space-y-2">
+            <p><strong>High Performance:</strong> Rules with CTR > 15% are performing exceptionally well.</p>
+            <p><strong>Optimization Opportunity:</strong> Consider increasing the frequency of top-performing rules.</p>
+            <p><strong>Testing:</strong> A/B test different rule combinations to improve conversion rates.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

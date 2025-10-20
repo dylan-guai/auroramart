@@ -1,0 +1,134 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}Category Management - AuroraMart Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Category Management</h1>
+            <p class="text-gray-600 mt-2">Organize your product catalog with categories and subcategories</p>
+        </div>
+        <div class="flex space-x-4">
+            <a href="{% url 'admin_panel:category_create' %}" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add Category
+            </a>
+        </div>
+    </div>
+
+    <!-- Categories List -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Categories ({{ categories.count }} total)</h2>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Subcategories</th>
+                        <th>Products</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in categories %}
+                    <tr>
+                        <td>
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <span class="text-blue-600 font-semibold">{{ category.name|first|upper }}</span>
+                                </div>
+                                <div>
+                                    <div class="font-semibold">{{ category.name }}</div>
+                                    <div class="text-sm text-gray-500">{{ category.description|truncatechars:50 }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-sm">
+                                <div class="font-semibold">{{ category.subcategory_set.count }}</div>
+                                <div class="text-gray-500">subcategories</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-sm">
+                                <div class="font-semibold">{{ category.product_set.count }}</div>
+                                <div class="text-gray-500">products</div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if category.is_active %}
+                                <span class="badge badge-success">Active</span>
+                            {% else %}
+                                <span class="badge badge-ghost">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="text-sm">{{ category.created_at|date:"M d, Y" }}</span>
+                        </td>
+                        <td>
+                            <div class="flex space-x-2">
+                                <a href="{% url 'admin_panel:category_edit' category.id %}" class="btn btn-sm btn-primary">Edit</a>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Subcategories -->
+                    {% for subcategory in category.subcategory_set.all %}
+                    <tr class="bg-gray-50">
+                        <td>
+                            <div class="flex items-center space-x-3 ml-8">
+                                <div class="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
+                                    <span class="text-gray-600 text-sm">{{ subcategory.name|first|upper }}</span>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-sm">{{ subcategory.name }}</div>
+                                    <div class="text-xs text-gray-500">{{ subcategory.description|truncatechars:30 }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-xs text-gray-500">-</span>
+                        </td>
+                        <td>
+                            <div class="text-sm">
+                                <div class="font-medium">{{ subcategory.product_set.count }}</div>
+                                <div class="text-gray-500 text-xs">products</div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if subcategory.is_active %}
+                                <span class="badge badge-success badge-sm">Active</span>
+                            {% else %}
+                                <span class="badge badge-ghost badge-sm">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="text-xs">{{ subcategory.created_at|date:"M d, Y" }}</span>
+                        </td>
+                        <td>
+                            <span class="text-xs text-gray-500">-</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-8 text-gray-500">
+                            No categories found. <a href="{% url 'admin_panel:category_create' %}" class="text-blue-600 hover:underline">Create your first category</a>.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

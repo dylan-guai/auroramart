@@ -1,0 +1,213 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}Receiving Management - AuroraMart Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Receiving Management</h1>
+            <p class="text-gray-600 mt-2">Manage incoming stock and restocking</p>
+        </div>
+        <div class="flex space-x-4">
+            <a href="{% url 'admin_panel:low_stock_alerts' %}" class="btn btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                View Alerts
+            </a>
+            <a href="{% url 'admin_panel:inventory_overview' %}" class="btn btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Inventory
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-orange-50 border border-orange-200 rounded-lg p-6 text-center">
+            <div class="text-3xl font-bold text-orange-600">{{ products_needing_restock.count }}</div>
+            <div class="text-sm text-gray-600">Products Needing Restock</div>
+        </div>
+        <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+            <div class="text-3xl font-bold text-red-600">{{ products_needing_restock|length }}</div>
+            <div class="text-sm text-gray-600">Out of Stock</div>
+        </div>
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+            <div class="text-3xl font-bold text-blue-600">{{ products_needing_restock|length }}</div>
+            <div class="text-sm text-gray-600">Low Stock</div>
+        </div>
+    </div>
+
+    <!-- Products Needing Restock -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Products Requiring Restock</h2>
+        </div>
+        
+        {% if products_needing_restock %}
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>SKU</th>
+                        <th>Category</th>
+                        <th>Current Stock</th>
+                        <th>Reorder Threshold</th>
+                        <th>Status</th>
+                        <th>Suggested Qty</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products_needing_restock %}
+                    <tr>
+                        <td>
+                            <div class="flex items-center space-x-3">
+                                {% if product.images.exists %}
+                                    <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="w-12 h-12 object-cover rounded">
+                                {% else %}
+                                    <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
+                                        <span class="text-lg">📦</span>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <div class="font-semibold">{{ product.name }}</div>
+                                    <div class="text-sm text-gray-500">{{ product.brand.name|default:"No Brand" }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="font-mono text-sm">{{ product.sku }}</td>
+                        <td>
+                            <div class="text-sm">
+                                <div>{{ product.category.name|default:"-" }}</div>
+                                <div class="text-gray-500">{{ product.subcategory.name|default:"" }}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="font-semibold {% if product.stock_quantity == 0 %}text-red-600{% else %}text-orange-600{% endif %}">
+                                {{ product.stock_quantity }}
+                            </span>
+                        </td>
+                        <td>{{ product.reorder_threshold }}</td>
+                        <td>
+                            {% if product.stock_quantity == 0 %}
+                                <span class="badge badge-error">Out of Stock</span>
+                            {% else %}
+                                <span class="badge badge-warning">Low Stock</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="font-semibold text-green-600">
+                                {{ product.reorder_threshold|add:10 }}
+                            </span>
+                        </td>
+                        <td>
+                            <button onclick="openReceiveModal({{ product.id }}, '{{ product.name }}', {{ product.stock_quantity }}, {{ product.reorder_threshold }})" class="btn btn-sm btn-primary">
+                                Receive Stock
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-12 text-center">
+            <div class="text-green-600 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">All Stocked Up!</h3>
+            <p class="text-gray-600">No products currently need restocking.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Receive Stock Modal -->
+<div id="receiveModal" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4">Receive Stock</h3>
+        
+        <form method="POST" id="receiveForm">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" id="modal_product_id">
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Product</label>
+                <div id="modal_product_name" class="font-semibold text-gray-800"></div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Current Stock</label>
+                <div id="modal_current_stock" class="text-gray-600"></div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Reorder Threshold</label>
+                <div id="modal_reorder_threshold" class="text-gray-600"></div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Quantity to Receive</label>
+                <div class="flex items-center space-x-4">
+                    <button type="button" onclick="adjustReceiveQuantity(-1)" class="btn btn-outline btn-sm">-</button>
+                    <input type="number" name="received_quantity" id="received_quantity" value="1" min="1" class="input input-bordered w-32 text-center" required>
+                    <button type="button" onclick="adjustReceiveQuantity(1)" class="btn btn-outline btn-sm">+</button>
+                </div>
+                <p class="text-sm text-gray-500 mt-1">Suggested: <span id="suggested_quantity" class="font-semibold"></span></p>
+            </div>
+            
+            <div class="modal-action">
+                <button type="button" onclick="closeReceiveModal()" class="btn btn-outline">Cancel</button>
+                <button type="submit" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    Receive Stock
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openReceiveModal(productId, productName, currentStock, reorderThreshold) {
+    document.getElementById('modal_product_id').value = productId;
+    document.getElementById('modal_product_name').textContent = productName;
+    document.getElementById('modal_current_stock').textContent = currentStock;
+    document.getElementById('modal_reorder_threshold').textContent = reorderThreshold;
+    
+    // Calculate suggested quantity
+    const suggested = Math.max(reorderThreshold + 10, 20);
+    document.getElementById('received_quantity').value = suggested;
+    document.getElementById('suggested_quantity').textContent = suggested;
+    
+    document.getElementById('receiveModal').classList.add('modal-open');
+}
+
+function closeReceiveModal() {
+    document.getElementById('receiveModal').classList.remove('modal-open');
+}
+
+function adjustReceiveQuantity(change) {
+    const input = document.getElementById('received_quantity');
+    const currentValue = parseInt(input.value) || 1;
+    const newValue = Math.max(1, currentValue + change);
+    input.value = newValue;
+}
+
+// Close modal when clicking outside
+document.getElementById('receiveModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeReceiveModal();
+    }
+});
+</script>
+{% endblock %}

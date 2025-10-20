@@ -1,0 +1,48 @@
+{% extends "pages/base_page.html" %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <h2 class="text-2xl font-semibold text-blue-800 mb-4">Our Mission</h2>
+        <p class="text-blue-700">
+            AuroraMart is revolutionizing e-commerce in Southeast Asia with AI-powered personalization 
+            that helps customers discover exactly what they need in under 90 seconds. We're backed by 
+            The Merlion Group's retail expertise and committed to delivering everyday quality without 
+            the luxury markup.
+        </p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">Our Technology</h3>
+            <p class="text-gray-600">
+                We use advanced machine learning algorithms including Decision Tree Classification 
+                for cold-start personalization and Association Rules Mining for intelligent product 
+                recommendations.
+            </p>
+        </div>
+        
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">Our Promise</h3>
+            <p class="text-gray-600">
+                Every customer should find something relevant within 90 seconds and have an experience 
+                sticky enough to bring them back within 14-21 days.
+            </p>
+        </div>
+    </div>
+    
+    <div class="bg-gray-50 border border-gray-200 rounded-lg p-6">
+        <h3 class="text-xl font-semibold text-gray-800 mb-3">Contact Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <p class="font-semibold text-gray-700">Email:</p>
+                <p class="text-gray-600">hello@auroramart.com</p>
+            </div>
+            <div>
+                <p class="font-semibold text-gray-700">Phone:</p>
+                <p class="text-gray-600">+65 1234 5678</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

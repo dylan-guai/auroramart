@@ -1,0 +1,135 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}
+Return Management | Admin Panel
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-4xl font-bold">Return Management</h1>
+    <div class="flex space-x-4">
+      <a href="{% url 'admin_panel:dashboard' %}" class="btn btn-outline">Back to Dashboard</a>
+    </div>
+  </div>
+  
+  <!-- Filters -->
+  <div class="bg-base-100 shadow-xl p-6 rounded-lg mb-8">
+    <h2 class="text-xl font-semibold mb-4">Filters</h2>
+    <form method="get" class="flex space-x-4">
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Status</span>
+        </label>
+        <select name="status" class="select select-bordered">
+          <option value="">All Statuses</option>
+          {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">&nbsp;</span>
+        </label>
+        <button type="submit" class="btn btn-primary">Apply Filters</button>
+      </div>
+    </form>
+  </div>
+  
+  <!-- Returns List -->
+  <div class="bg-base-100 shadow-xl rounded-lg overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="table w-full">
+        <thead>
+          <tr>
+            <th>Return ID</th>
+            <th>Order #</th>
+            <th>Customer</th>
+            <th>Reason</th>
+            <th>Status</th>
+            <th>Requested</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for return_request in returns %}
+          <tr class="hover:bg-gray-50">
+            <td>
+              <div class="font-semibold">#{{ return_request.id }}</div>
+            </td>
+            <td>
+              <div class="font-mono">{{ return_request.order.order_number }}</div>
+            </td>
+            <td>
+              <div>{{ return_request.order.user.get_full_name|default:return_request.order.user.username }}</div>
+              <div class="text-sm text-gray-500">{{ return_request.order.user.email }}</div>
+            </td>
+            <td>
+              <div>{{ return_request.get_reason_display }}</div>
+            </td>
+            <td>
+              <span class="badge badge-{% if return_request.status == 'refunded' %}success{% elif return_request.status == 'approved' %}info{% elif return_request.status == 'rejected' %}error{% else %}warning{% endif %}">
+                {{ return_request.get_status_display }}
+              </span>
+            </td>
+            <td>
+              <div>{{ return_request.requested_at|date:"M d, Y" }}</div>
+              <div class="text-sm text-gray-500">{{ return_request.requested_at|time:"g:i A" }}</div>
+            </td>
+            <td>
+              <div class="flex space-x-2">
+                <a href="{% url 'admin_panel:return_detail' return_request.id %}" class="btn btn-sm btn-outline">View</a>
+                {% if return_request.can_be_approved %}
+                  <form method="post" action="{% url 'admin_panel:approve_return' return_request.id %}" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Approve this return request?')">Approve</button>
+                  </form>
+                  <form method="post" action="{% url 'admin_panel:reject_return' return_request.id %}" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-error" onclick="return confirm('Reject this return request?')">Reject</button>
+                  </form>
+                {% elif return_request.can_be_received %}
+                  <form method="post" action="{% url 'admin_panel:mark_return_received' return_request.id %}" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-info" onclick="return confirm('Mark return as received?')">Mark Received</button>
+                  </form>
+                {% elif return_request.can_be_refunded %}
+                  <form method="post" action="{% url 'admin_panel:process_refund' return_request.id %}" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Process refund for this return?')">Process Refund</button>
+                  </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center py-8">
+              <div class="text-gray-500">No return requests found.</div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if returns.has_other_pages %}
+    <div class="flex justify-center p-6">
+      <div class="join">
+        {% if returns.has_previous %}
+          <a href="?page={{ returns.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="join-item btn">«</a>
+        {% endif %}
+
+        <button class="join-item btn">Page {{ returns.number }} of {{ returns.paginator.num_pages }}</button>
+
+        {% if returns.has_next %}
+          <a href="?page={{ returns.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="join-item btn">»</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

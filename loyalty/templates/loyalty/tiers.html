@@ -1,0 +1,192 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Loyalty Tiers - AuroraMart{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tier-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .tier-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    .current-tier {
+        border: 3px solid #3b82f6;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+    }
+    .tier-progress {
+        background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <div class="mb-8">
+                <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-5xl font-bold mb-4">Loyalty Tiers</h1>
+                <p class="text-xl opacity-90 max-w-2xl mx-auto">
+                    Unlock exclusive benefits as you climb the loyalty ladder
+                </p>
+            </div>
+            
+            <!-- Current Status -->
+            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 max-w-md mx-auto">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold">{{ loyalty_account.current_tier.display_name|default:"No Tier" }}</h3>
+                        <p class="opacity-80">Current Tier</p>
+                    </div>
+                    <div class="text-right">
+                        <h3 class="text-2xl font-bold">{{ loyalty_account.points_balance }}</h3>
+                        <p class="opacity-80">Points Balance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-wrap gap-4 mb-8">
+            <a href="{% url 'loyalty:dashboard' %}" class="btn btn-outline">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                </svg>
+                Dashboard
+            </a>
+            <a href="{% url 'loyalty:rewards' %}" class="btn btn-outline">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                </svg>
+                Rewards
+            </a>
+            <a href="{% url 'loyalty:transactions' %}" class="btn btn-outline">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                Transactions
+            </a>
+            <a href="{% url 'loyalty:notifications' %}" class="btn btn-outline">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM4.828 7l2.586 2.586a2 2 0 002.828 0L12.828 7H4.828z"></path>
+                </svg>
+                Notifications
+            </a>
+            <a href="{% url 'loyalty:tiers' %}" class="btn btn-primary">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                </svg>
+                Tiers
+            </a>
+        </div>
+
+        <!-- Progress to Next Tier -->
+        {% if next_tier %}
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">Progress to Next Tier</h2>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="font-medium">{{ loyalty_account.current_tier.display_name|default:"No Tier" }}</span>
+                    <span class="font-medium">{{ next_tier.display_name }}</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div class="tier-progress h-3 rounded-full" style="width: {% widthratio loyalty_account.points_balance next_tier.min_points 100 %}%"></div>
+                </div>
+                <div class="flex items-center justify-between text-sm text-gray-600">
+                    <span>{{ loyalty_account.points_balance }} points</span>
+                    <span>{{ next_tier.min_points }} points needed</span>
+                </div>
+                <p class="text-sm text-gray-600">
+                    You need {{ next_tier.min_points|add:loyalty_account.points_balance|add:"-"|add:next_tier.min_points }} more points to reach {{ next_tier.display_name }}
+                </p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Tiers Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for tier in tiers %}
+            <div class="tier-card card {% if tier == loyalty_account.current_tier %}current-tier{% else %}bg-white{% endif %} shadow-lg">
+                <div class="card-body p-6">
+                    <div class="text-center mb-4">
+                        <div class="w-16 h-16 {% if tier == loyalty_account.current_tier %}bg-white/20{% else %}bg-blue-100{% endif %} rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-8 h-8 {% if tier == loyalty_account.current_tier %}text-white{% else %}text-blue-600{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold {% if tier == loyalty_account.current_tier %}text-white{% else %}text-gray-900{% endif %}">{{ tier.display_name }}</h3>
+                        <p class="text-sm {% if tier == loyalty_account.current_tier %}text-white/80{% else %}text-gray-600{% endif %} mt-1">{{ tier.description }}</p>
+                    </div>
+                    
+                    <div class="space-y-3 mb-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm {% if tier == loyalty_account.current_tier %}text-white/80{% else %}text-gray-600{% endif %}">Minimum Points:</span>
+                            <span class="font-medium {% if tier == loyalty_account.current_tier %}text-white{% else %}text-gray-900{% endif %}">{{ tier.min_points }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm {% if tier == loyalty_account.current_tier %}text-white/80{% else %}text-gray-600{% endif %}">Points Multiplier:</span>
+                            <span class="font-medium {% if tier == loyalty_account.current_tier %}text-white{% else %}text-gray-900{% endif %}">{{ tier.points_multiplier }}x</span>
+                        </div>
+                        {% if tier.discount_percentage %}
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm {% if tier == loyalty_account.current_tier %}text-white/80{% else %}text-gray-600{% endif %}">Discount:</span>
+                            <span class="font-medium {% if tier == loyalty_account.current_tier %}text-white{% else %}text-gray-900{% endif %}">{{ tier.discount_percentage }}%</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <h4 class="font-medium {% if tier == loyalty_account.current_tier %}text-white{% else %}text-gray-900{% endif %}">Benefits:</h4>
+                        <ul class="space-y-1">
+                            {% for benefit in tier.benefits_list %}
+                            <li class="text-sm {% if tier == loyalty_account.current_tier %}text-white/80{% else %}text-gray-600{% endif %} flex items-center">
+                                <svg class="w-4 h-4 mr-2 {% if tier == loyalty_account.current_tier %}text-white{% else %}text-green-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                {{ benefit }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    {% if tier == loyalty_account.current_tier %}
+                    <div class="mt-4 p-3 bg-white/20 rounded-lg">
+                        <p class="text-white text-sm font-medium text-center">Your Current Tier</p>
+                    </div>
+                    {% elif tier.min_points <= loyalty_account.points_balance %}
+                    <div class="mt-4 p-3 bg-green-100 rounded-lg">
+                        <p class="text-green-800 text-sm font-medium text-center">You qualify for this tier!</p>
+                    </div>
+                    {% else %}
+                    <div class="mt-4 p-3 bg-gray-100 rounded-lg">
+                        <p class="text-gray-600 text-sm font-medium text-center">
+                            Need {{ tier.min_points|add:loyalty_account.points_balance|add:"-"|add:tier.min_points }} more points
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-12">
+                <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                </svg>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">No Tiers Available</h3>
+                <p class="text-gray-500">Loyalty tiers are being set up!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

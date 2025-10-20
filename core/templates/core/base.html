@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AuroraMart - Personalized Shopping Experience{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'aurora-blue': '#2563eb',
+                        'aurora-purple': '#7c3aed',
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.8s ease-out',
+                        'bounce-slow': 'bounce 2s infinite',
+                        'gradient-x': 'gradient-x 3s ease infinite',
+                        'float': 'float 3s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': {
+                                opacity: '0',
+                                transform: 'translateY(30px)'
+                            },
+                            '100%': {
+                                opacity: '1',
+                                transform: 'translateY(0)'
+                            }
+                        },
+                        'gradient-x': {
+                            '0%, 100%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'left center'
+                            },
+                            '50%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'right center'
+                            }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        },
+                        glow: {
+                            '0%': { boxShadow: '0 0 5px rgba(59, 130, 246, 0.5)' },
+                            '100%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.8)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out;
+        }
+        .animate-bounce-slow {
+            animation: bounce 2s infinite;
+        }
+        .animate-gradient-x {
+            background-size: 200% 200%;
+            animation: gradient-x 3s ease infinite;
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        .animate-glow {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hover-lift:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <div class="navbar bg-white/95 backdrop-blur-md shadow-lg sticky top-0 z-50">
+        <div class="navbar-start">
+            <a href="{% url 'core:index' %}" class="btn btn-ghost text-xl font-bold text-blue-600 hover:scale-105 transition-transform duration-200">
+                AuroraMart
+            </a>
+        </div>
+        
+        <div class="navbar-center hidden lg:flex">
+            <ul class="menu menu-horizontal px-1">
+                <li><a href="{% url 'core:index' %}" class="font-medium hover:text-blue-600 transition-colors duration-200">Home</a></li>
+                <li>
+                    <div class="dropdown dropdown-hover dropdown-bottom">
+                        <div tabindex="0" role="button" class="font-medium hover:text-blue-600 transition-colors duration-200">Categories</div>
+                        <ul tabindex="0" class="dropdown-content menu p-2 shadow-xl bg-white rounded-box w-96 z-50 border border-gray-100 mt-2">
+                            {% for category in categories %}
+                            <li>
+                                <div class="flex items-center justify-between">
+                                    <a href="{% url 'item:category_detail' category.slug %}" class="font-semibold text-blue-600 hover:text-blue-800">
+                                        {{ category.name }}
+                                    </a>
+                                    <span class="text-xs text-gray-500">{{ category.subcategories.count }} items</span>
+                                </div>
+                                {% if category.subcategories.exists %}
+                                <ul class="ml-4 mt-2 space-y-1">
+                                    {% for subcategory in category.subcategories.all|slice:":6" %}
+                                    <li>
+                                        <a href="{% url 'item:subcategory_detail' category.slug subcategory.slug %}" class="text-sm text-gray-600 hover:text-gray-800">
+                                            {{ subcategory.name }}
+                                        </a>
+                                    </li>
+                                    {% endfor %}
+                                    {% if category.subcategories.count > 6 %}
+                                    <li>
+                                        <a href="{% url 'item:category_detail' category.slug %}" class="text-xs text-blue-500 hover:text-blue-700">
+                                            View all {{ category.subcategories.count }} subcategories →
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                                {% endif %}
+                            </li>
+                            {% if not forloop.last %}
+                            <div class="divider my-1"></div>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </li>
+                <li><a href="{% url 'item:product_list' %}" class="font-medium">All Products</a></li>
+            </ul>
+        </div>
+        
+        <!-- Mobile Menu Button -->
+        <div class="navbar-end lg:hidden">
+            <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </div>
+                <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                    <li><a href="{% url 'core:index' %}">Home</a></li>
+                    <li>
+                        <details>
+                            <summary>Categories</summary>
+                            <ul class="p-2">
+                                {% for category in categories %}
+                                <li><a href="{% url 'item:category_detail' category.slug %}">{{ category.name }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </details>
+                    </li>
+                    <li><a href="{% url 'item:product_list' %}">All Products</a></li>
+                    {% if user.is_authenticated %}
+                    <li><a href="{% url 'profiles:profile' %}">My Profile</a></li>
+                    <li><a href="{% url 'loyalty:dashboard' %}">Loyalty Program</a></li>
+                    <li><a href="{% url 'checkout:cart_view' %}">Shopping Cart</a></li>
+                    <li><a href="{% url 'core:logout' %}">Logout</a></li>
+                    {% else %}
+                    <li><a href="{% url 'core:login' %}">Sign In</a></li>
+                    <li><a href="{% url 'core:register' %}">Create Account</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+        
+        <div class="navbar-end hidden lg:flex">
+            <!-- Search Bar -->
+            <div class="form-control hidden md:block relative">
+                <form method="get" action="{% url 'search:search' %}" id="search-form">
+                    <div class="flex items-center gap-2">
+                        <input type="text" name="q" id="search-input" placeholder="Search products..." class="input input-bordered w-full max-w-xs" autocomplete="off" />
+                        <button type="submit" class="btn btn-square">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </button>
+                        <!-- Search Suggestions Dropdown -->
+                        <div id="search-suggestions" class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 hidden max-h-96 overflow-y-auto">
+                            <div id="suggestions-content" class="p-2">
+                                <!-- Suggestions will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Cart Icon -->
+            {% if user.is_authenticated %}
+            <a href="{% url 'checkout:cart_view' %}" class="btn btn-ghost btn-circle relative">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                {% if total_quantity > 0 %}
+                <span class="badge badge-sm badge-primary absolute -top-1 -right-1">{{ total_quantity }}</span>
+                {% endif %}
+            </a>
+            {% endif %}
+            
+            
+            <!-- User Menu -->
+            {% if user.is_authenticated %}
+            <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                    <div class="w-10 rounded-full">
+                        {% if user.profile.profile_picture %}
+                            <img src="{{ user.profile.profile_picture.url }}" alt="Profile" />
+                        {% else %}
+                            <div class="bg-blue-500 text-white flex items-center justify-center h-full">
+                                <span class="text-lg font-semibold">{{ user.username|first|upper }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                    <li><a href="{% url 'profiles:profile' %}">My Profile</a></li>
+                    <li><a href="{% url 'profiles:order_history' %}">Order History</a></li>
+                    <li><a href="{% url 'profiles:wishlist' %}">Wishlist</a></li>
+                    <li><a href="{% url 'loyalty:dashboard' %}">
+                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                      </svg>
+                      Loyalty Program
+                    </a></li>
+                    <li><a href="{% url 'profiles:notifications' %}">
+                      Notifications
+                      {% if user.notifications.unread.count > 0 %}
+                        <span class="badge badge-primary">{{ user.notifications.unread.count }}</span>
+                      {% endif %}
+                    </a></li>
+                    <li><a href="{% url 'checkout:cart_view' %}">Shopping Cart</a></li>
+                    <li><hr class="my-2"></li>
+                    <li><a href="{% url 'core:logout' %}">Logout</a></li>
+                </ul>
+            </div>
+            {% else %}
+            <div class="flex gap-2">
+                <a href="{% url 'core:login' %}" class="btn btn-ghost">Sign In</a>
+                <a href="{% url 'core:register' %}" class="btn btn-primary">Create Account</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        {% block body %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer footer-center p-10 bg-gray-900 text-white">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-4">AuroraMart</h3>
+                    <p class="text-gray-400">Personalized shopping experiences powered by AI. Everyday quality without the luxury markup.</p>
+                </div>
+                <div>
+                    <h4 class="text-md font-semibold mb-4">Shop</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="{% url 'item:product_list' %}" class="hover:text-white transition-colors">All Products</a></li>
+                        {% for category in categories %}
+                        <li><a href="{% url 'item:category_detail' category.slug %}" class="hover:text-white transition-colors">{{ category.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-md font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="{% url 'pages:help_center' %}" class="hover:text-white transition-colors">Help Center</a></li>
+                        <li><a href="{% url 'pages:shipping_info' %}" class="hover:text-white transition-colors">Shipping Info</a></li>
+                        <li><a href="{% url 'pages:returns' %}" class="hover:text-white transition-colors">Returns</a></li>
+                        <li><a href="{% url 'pages:contact_us' %}" class="hover:text-white transition-colors">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-md font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="{% url 'pages:about_us' %}" class="hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="{% url 'pages:careers' %}" class="hover:text-white transition-colors">Careers</a></li>
+                        <li><a href="{% url 'pages:privacy_policy' %}" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                        <li><a href="{% url 'pages:terms_of_service' %}" class="hover:text-white transition-colors">Terms of Service</a></li>
+                        {% if not user.is_authenticated %}
+                        <li><a href="{% url 'admin_panel:login' %}" class="hover:text-white transition-colors text-yellow-400 font-semibold">🔧 Admin Login</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <div class="divider"></div>
+            <div class="text-center text-gray-400">
+                <p>&copy; 2024 AuroraMart. Powered by The Merlion Group. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+    
+    <script>
+        // Toast notification system
+        function showToast(message, type = 'info', duration = 5000) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const typeClasses = {
+                success: 'bg-green-500 text-white',
+                error: 'bg-red-500 text-white',
+                warning: 'bg-yellow-500 text-black',
+                info: 'bg-blue-500 text-white'
+            };
+            
+            const icons = {
+                success: '✓',
+                error: '✗',
+                warning: '⚠',
+                info: 'ℹ'
+            };
+            
+            toast.className = `${typeClasses[type]} px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-fade-in-up max-w-sm`;
+            toast.innerHTML = `
+                <span class="text-xl">${icons[type]}</span>
+                <span class="flex-1">${message}</span>
+                <button onclick="this.parentElement.remove()" class="text-white hover:text-gray-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Auto remove after duration
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.animation = 'fadeOut 0.3s ease-out';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, duration);
+        }
+        
+        // Add fade out animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeOut {
+                from { opacity: 1; transform: translateX(0); }
+                to { opacity: 0; transform: translateX(100%); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Show toast for Django messages
+        {% if messages %}
+            {% for message in messages %}
+                showToast('{{ message|escapejs }}', '{{ message.tags }}', 5000);
+            {% endfor %}
+        {% endif %}
+        
+        
+        // Search Suggestions Functionality
+        const searchInput = document.getElementById('search-input');
+        const searchSuggestions = document.getElementById('search-suggestions');
+        const suggestionsContent = document.getElementById('suggestions-content');
+        let searchTimeout;
+        
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            
+            // Clear previous timeout
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+            
+            if (query.length < 2) {
+                searchSuggestions.classList.add('hidden');
+                return;
+            }
+            
+            // Debounce the search
+            searchTimeout = setTimeout(() => {
+                fetchSuggestions(query);
+            }, 300);
+        });
+        
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+                searchSuggestions.classList.add('hidden');
+            }
+        });
+        
+        // Hide suggestions on form submit
+        document.getElementById('search-form').addEventListener('submit', function() {
+            searchSuggestions.classList.add('hidden');
+        });
+        
+        function fetchSuggestions(query) {
+            fetch(`/search/suggestions/?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    displaySuggestions(data.suggestions);
+                })
+                .catch(error => {
+                    console.error('Error fetching suggestions:', error);
+                });
+        }
+        
+        function displaySuggestions(suggestions) {
+            if (suggestions.length === 0) {
+                searchSuggestions.classList.add('hidden');
+                return;
+            }
+            
+            suggestionsContent.innerHTML = suggestions.map(suggestion => `
+                <a href="${suggestion.url}" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+                    <div class="flex-shrink-0 w-10 h-10 mr-3">
+                        ${suggestion.image ? 
+                            `<img src="${suggestion.image}" alt="${suggestion.title}" class="w-full h-full object-cover rounded">` :
+                            `<div class="w-full h-full bg-gray-200 rounded flex items-center justify-center">
+                                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                </svg>
+                            </div>`
+                        }
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 truncate">${suggestion.title}</p>
+                        <p class="text-sm text-gray-500 truncate">${suggestion.subtitle}</p>
+                    </div>
+                    <div class="flex-shrink-0 ml-2">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            suggestion.type === 'product' ? 'bg-blue-100 text-blue-800' :
+                            suggestion.type === 'category' ? 'bg-green-100 text-green-800' :
+                            suggestion.type === 'brand' ? 'bg-purple-100 text-purple-800' :
+                            'bg-gray-100 text-gray-800'
+                        }">
+                            ${suggestion.type}
+                        </span>
+                    </div>
+                </a>
+            `).join('');
+            
+            searchSuggestions.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

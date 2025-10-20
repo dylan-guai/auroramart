@@ -1,0 +1,231 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}Security Settings - AuroraMart Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Security Settings</h1>
+            <p class="text-gray-600 mt-2">Manage your account security and active sessions</p>
+        </div>
+    </div>
+
+    <!-- Security Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div class="text-3xl font-bold text-blue-600">{{ active_sessions.count }}</div>
+            <div class="text-sm text-gray-600">Active Sessions</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div class="text-3xl font-bold text-green-600">{{ admin_user.user.date_joined|date:"M d" }}</div>
+            <div class="text-sm text-gray-600">Account Created</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div class="text-3xl font-bold text-purple-600">{{ recent_attempts.count }}</div>
+            <div class="text-sm text-gray-600">Recent Login Attempts</div>
+        </div>
+    </div>
+
+    <!-- Password Management -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Password Management</h2>
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="font-semibold text-gray-700">Change Password</h3>
+                <p class="text-sm text-gray-600">Update your password to keep your account secure</p>
+            </div>
+            <a href="{% url 'admin_panel:password_change' %}" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+                Change Password
+            </a>
+        </div>
+    </div>
+
+    <!-- Active Sessions -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <h2 class="text-xl font-semibold text-gray-800">Active Sessions</h2>
+            <form method="POST" action="{% url 'admin_panel:logout_all_sessions' %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-error btn-sm" onclick="return confirm('This will log you out from all devices. Continue?')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Logout All Sessions
+                </button>
+            </form>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th>Device</th>
+                        <th>IP Address</th>
+                        <th>Last Activity</th>
+                        <th>Expires</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for session in active_sessions %}
+                    <tr {% if session.session_key == request.session.session_key %}class="bg-blue-50"{% endif %}>
+                        <td>
+                            <div class="flex items-center">
+                                {% if session.session_key == request.session.session_key %}
+                                    <span class="badge badge-primary badge-sm mr-2">Current</span>
+                                {% endif %}
+                                <span class="text-sm">{{ session.user_agent|truncatechars:50|default:"Unknown Device" }}</span>
+                            </div>
+                        </td>
+                        <td class="font-mono text-sm">{{ session.ip_address }}</td>
+                        <td>
+                            <span class="text-sm">{{ session.last_activity|date:"M d, Y H:i" }}</span>
+                        </td>
+                        <td>
+                            <span class="text-sm {% if session.is_expired %}text-red-600{% else %}text-green-600{% endif %}">
+                                {{ session.expires_at|date:"M d, Y H:i" }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if session.is_expired %}
+                                <span class="badge badge-error">Expired</span>
+                            {% else %}
+                                <span class="badge badge-success">Active</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-8 text-gray-500">
+                            No active sessions found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Login Attempts -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Recent Login Attempts</h2>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>IP Address</th>
+                        <th>User Agent</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for attempt in recent_attempts %}
+                    <tr>
+                        <td>
+                            <span class="text-sm">{{ attempt.timestamp|date:"M d, Y H:i" }}</span>
+                        </td>
+                        <td class="font-mono text-sm">{{ attempt.ip_address }}</td>
+                        <td>
+                            <span class="text-sm">{{ attempt.user_agent|truncatechars:50|default:"Unknown" }}</span>
+                        </td>
+                        <td>
+                            {% if attempt.success %}
+                                <span class="badge badge-success">Success</span>
+                            {% else %}
+                                <span class="badge badge-error">Failed</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-8 text-gray-500">
+                            No recent login attempts found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Session Management JavaScript -->
+<script>
+// Session heartbeat to keep session alive
+let heartbeatInterval;
+
+function startHeartbeat() {
+    heartbeatInterval = setInterval(function() {
+        fetch('/admin-panel/heartbeat/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                console.log('Session expired, redirecting to login');
+                window.location.href = '/admin-panel/login/';
+            }
+        })
+        .catch(error => {
+            console.log('Heartbeat error:', error);
+        });
+    }, 30000); // Every 30 seconds
+}
+
+function stopHeartbeat() {
+    if (heartbeatInterval) {
+        clearInterval(heartbeatInterval);
+    }
+}
+
+// Start heartbeat when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    startHeartbeat();
+});
+
+// Stop heartbeat when page unloads
+window.addEventListener('beforeunload', function() {
+    stopHeartbeat();
+});
+
+// Check session status periodically
+setInterval(function() {
+    fetch('/admin-panel/session-status/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.time_remaining < 300) { // Less than 5 minutes
+                if (confirm('Your session will expire soon. Would you like to extend it?')) {
+                    fetch('/admin-panel/extend-session/', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('Session extended');
+                        }
+                    });
+                }
+            }
+        });
+}, 60000); // Check every minute
+</script>
+{% endblock %}

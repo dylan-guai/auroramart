@@ -1,0 +1,91 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}Bulk Import Products - AuroraMart Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Bulk Import Products</h1>
+            <p class="text-gray-600 mt-2">Import multiple products from a CSV file</p>
+        </div>
+        <div class="flex space-x-4">
+            <a href="{% url 'admin_panel:product_bulk_export' %}" class="btn btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Download Template
+            </a>
+            <a href="{% url 'admin_panel:product_list' %}" class="btn btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Products
+            </a>
+        </div>
+    </div>
+
+    <!-- Import Instructions -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+        <h2 class="text-lg font-semibold text-blue-800 mb-4">Import Instructions</h2>
+        <div class="text-sm text-blue-700 space-y-2">
+            <p><strong>Required Fields:</strong> SKU, Name, Price</p>
+            <p><strong>Optional Fields:</strong> Description, Short Description, Discount Price, Stock Quantity, Reorder Threshold, Category, Subcategory, Brand, Is Active</p>
+            <p><strong>Format:</strong> CSV file with headers matching the field names exactly</p>
+            <p><strong>Note:</strong> SKUs must be unique. Existing SKUs will be skipped.</p>
+        </div>
+    </div>
+
+    <!-- Import Form -->
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+            <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">CSV File</label>
+                    <input type="file" name="csv_file" accept=".csv" class="file-input file-input-bordered w-full" required>
+                    <p class="text-sm text-gray-500 mt-1">Select a CSV file to import</p>
+                </div>
+
+                <!-- Sample CSV Format -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h3 class="font-semibold text-gray-800 mb-2">Sample CSV Format:</h3>
+                    <div class="text-sm text-gray-600 font-mono">
+                        SKU,Name,Description,Short Description,Price,Discount Price,Stock Quantity,Reorder Threshold,Category,Subcategory,Brand,Is Active<br>
+                        SKU001,Product Name,Full description,Short desc,29.99,24.99,100,10,Electronics,Smartphones,Apple,True
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-end space-x-4">
+                    <a href="{% url 'admin_panel:product_list' %}" class="btn btn-outline">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                        </svg>
+                        Import Products
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Import Errors -->
+    {% if import_errors %}
+    <div class="max-w-4xl mx-auto mt-8">
+        <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+            <h2 class="text-lg font-semibold text-red-800 mb-4">Import Errors</h2>
+            <div class="text-sm text-red-700">
+                <ul class="list-disc list-inside space-y-1">
+                    {% for error in import_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

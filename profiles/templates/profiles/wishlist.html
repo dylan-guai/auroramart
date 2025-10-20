@@ -1,0 +1,133 @@
+{% extends "core/base.html" %}
+
+{% block title %}
+Wishlist | AuroraMart
+{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-6xl mx-auto">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-4xl font-bold">My Wishlist</h1>
+      <a href="{% url 'profiles:profile' %}" class="btn btn-outline">Back to Profile</a>
+    </div>
+    
+    {% if wishlist_items %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {% for item in wishlist_items %}
+      <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+        <figure class="relative">
+          {% if item.product.images.exists %}
+            <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="w-full h-48 object-cover">
+          {% else %}
+            <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+              <span class="text-4xl">📦</span>
+            </div>
+          {% endif %}
+          
+          <!-- Wishlist Toggle Button -->
+          <button class="absolute top-2 right-2 btn btn-sm btn-circle btn-error" onclick="toggleWishlist({{ item.product.id }})">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+            </svg>
+          </button>
+          
+          <!-- Stock Status -->
+          {% if not item.product.is_in_stock %}
+            <div class="absolute top-2 left-2">
+              <span class="badge badge-error">Out of Stock</span>
+            </div>
+          {% endif %}
+        </figure>
+        
+        <div class="card-body">
+          <h3 class="card-title text-lg">{{ item.product.name }}</h3>
+          <p class="text-sm text-gray-600">{{ item.product.short_description|truncatechars:60 }}</p>
+          
+          <div class="flex items-center justify-between mt-2">
+            <div class="flex items-center">
+              <span class="text-2xl font-bold text-primary">${{ item.product.current_price }}</span>
+              {% if item.product.discount_price %}
+                <span class="text-sm text-gray-500 line-through ml-2">${{ item.product.price }}</span>
+              {% endif %}
+            </div>
+            <div class="flex items-center">
+              <span class="text-yellow-500">★</span>
+              <span class="text-sm ml-1">{{ item.product.average_rating|floatformat:1 }}</span>
+              <span class="text-xs text-gray-500 ml-1">({{ item.product.review_count }})</span>
+            </div>
+          </div>
+          
+          <div class="card-actions justify-end mt-4">
+            <a href="{% url 'item:product_detail' item.product.id %}" class="btn btn-primary btn-sm min-h-8 px-2 text-xs">View Details</a>
+            {% if item.product.is_in_stock and user.is_authenticated %}
+              <form method="post" action="{% url 'item:add_to_cart' item.product.id %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-secondary btn-sm min-h-8 px-2 text-xs">Add to Cart</button>
+              </form>
+            {% elif not item.product.is_in_stock %}
+              <button class="btn btn-disabled btn-sm">Out of Stock</button>
+            {% endif %}
+          </div>
+          
+          <div class="text-xs text-gray-500 mt-2">
+            Added {{ item.added_at|date:"M d, Y" }}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if wishlist_items.has_other_pages %}
+    <div class="flex justify-center mt-8">
+      <div class="join">
+        {% if wishlist_items.has_previous %}
+          <a href="?page={{ wishlist_items.previous_page_number }}" class="join-item btn">«</a>
+        {% endif %}
+
+        <button class="join-item btn">Page {{ wishlist_items.number }} of {{ wishlist_items.paginator.num_pages }}</button>
+
+        {% if wishlist_items.has_next %}
+          <a href="?page={{ wishlist_items.next_page_number }}" class="join-item btn">»</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="text-center py-12 bg-base-100 shadow-xl rounded-lg">
+      <div class="text-6xl mb-4">💝</div>
+      <h2 class="text-2xl font-bold mb-4">Your wishlist is empty</h2>
+      <p class="text-gray-600 mb-6">Save items you love to your wishlist for easy access later!</p>
+      <a href="{% url 'item:product_list' %}" class="btn btn-primary btn-lg">Browse Products</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+function toggleWishlist(productId) {
+  fetch(`{% url 'profiles:toggle_wishlist' 0 %}`.replace('0', productId), {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+      'Content-Type': 'application/json',
+    },
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.status === 'removed') {
+      // Remove the card from the page
+      event.target.closest('.card').remove();
+    }
+    // Show success message
+    alert(data.message);
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Something went wrong. Please try again.');
+  });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,408 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}Product Performance Dashboard - AuroraMart Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Product Performance Dashboard</h1>
+            <p class="text-gray-600 mt-2">KPIs, analytics, and performance insights for products</p>
+        </div>
+        <div class="flex space-x-4">
+            <!-- Time Period Filter -->
+            <div class="dropdown dropdown-end">
+                <label tabindex="0" class="btn btn-outline">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Last {{ period_days }} days
+                </label>
+                <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+                    <li><a href="?period=7">Last 7 days</a></li>
+                    <li><a href="?period=30">Last 30 days</a></li>
+                    <li><a href="?period=90">Last 90 days</a></li>
+                    <li><a href="?period=365">Last year</a></li>
+                </ul>
+            </div>
+            <a href="{% url 'admin_panel:product_list' %}" class="btn btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                Manage Products
+            </a>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="card bg-white shadow-lg">
+            <div class="card-body">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Products</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ total_products }}</p>
+                    </div>
+                    <div class="text-blue-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-500 mt-1">
+                    {{ active_products }} active
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-white shadow-lg">
+            <div class="card-body">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Period Revenue</p>
+                        <p class="text-2xl font-bold text-green-600">${{ total_sales_revenue|floatformat:2 }}</p>
+                    </div>
+                    <div class="text-green-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-500 mt-1">
+                    {{ total_units_sold }} units sold
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-white shadow-lg">
+            <div class="card-body">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Low Stock</p>
+                        <p class="text-2xl font-bold text-yellow-600">{{ low_stock_products }}</p>
+                    </div>
+                    <div class="text-yellow-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-500 mt-1">
+                    {{ out_of_stock_products }} out of stock
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-white shadow-lg">
+            <div class="card-body">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Avg. Order Value</p>
+                        <p class="text-2xl font-bold text-blue-600">
+                            ${{ average_order_value|floatformat:2 }}
+                        </p>
+                    </div>
+                    <div class="text-blue-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-500 mt-1">
+                    Per unit sold
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Tables -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Top Products by Revenue -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">Top Products by Revenue</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="table w-full">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Revenue</th>
+                            <th>Units</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in top_products_revenue %}
+                        <tr>
+                            <td>
+                                <div class="text-sm">
+                                    <div class="font-semibold">{{ product.name|truncatechars:30 }}</div>
+                                    <div class="text-gray-600">{{ product.category.name|default:"No Category" }}</div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="font-semibold text-green-600">${{ product.period_revenue|floatformat:2 }}</span>
+                            </td>
+                            <td>
+                                <span class="font-semibold">{{ product.period_quantity|default:0 }}</span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center py-8 text-gray-500">
+                                No sales data for this period.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Top Products by Quantity -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">Top Products by Quantity</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="table w-full">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Units</th>
+                            <th>Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in top_products_quantity %}
+                        <tr>
+                            <td>
+                                <div class="text-sm">
+                                    <div class="font-semibold">{{ product.name|truncatechars:30 }}</div>
+                                    <div class="text-gray-600">{{ product.category.name|default:"No Category" }}</div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="font-semibold text-blue-600">{{ product.period_quantity|default:0 }}</span>
+                            </td>
+                            <td>
+                                <span class="font-semibold">${{ product.period_revenue|floatformat:2 }}</span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center py-8 text-gray-500">
+                                No sales data for this period.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category and Brand Performance -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Category Performance -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">Category Performance</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="table w-full">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Products</th>
+                            <th>Revenue</th>
+                            <th>Units</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in category_performance %}
+                        <tr>
+                            <td>
+                                <div class="font-semibold">{{ category.name }}</div>
+                            </td>
+                            <td>
+                                <span class="badge badge-outline">{{ category.product_count }}</span>
+                            </td>
+                            <td>
+                                <span class="font-semibold">${{ category.period_revenue|floatformat:2 }}</span>
+                            </td>
+                            <td>
+                                <span class="font-semibold">{{ category.period_quantity|default:0 }}</span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-8 text-gray-500">
+                                No category data available.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Brand Performance -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">Brand Performance</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="table w-full">
+                    <thead>
+                        <tr>
+                            <th>Brand</th>
+                            <th>Products</th>
+                            <th>Revenue</th>
+                            <th>Units</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for brand in brand_performance %}
+                        <tr>
+                            <td>
+                                <div class="font-semibold">{{ brand.name }}</div>
+                            </td>
+                            <td>
+                                <span class="badge badge-outline">{{ brand.product_count }}</span>
+                            </td>
+                            <td>
+                                <span class="font-semibold">${{ brand.period_revenue|floatformat:2 }}</span>
+                            </td>
+                            <td>
+                                <span class="font-semibold">{{ brand.period_quantity|default:0 }}</span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-8 text-gray-500">
+                                No brand data available.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Price Analysis -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">Price Range Analysis</h2>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    {% for analysis in price_analysis %}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 rounded-full {% cycle 'bg-blue-500' 'bg-green-500' 'bg-yellow-500' 'bg-red-500' 'bg-purple-500' %}"></div>
+                            <span class="font-medium">{{ analysis.range }}</span>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm text-gray-600">{{ analysis.product_count }} products</span>
+                            <span class="font-semibold">${{ analysis.revenue|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Analysis -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">Stock Status Analysis</h2>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 rounded-full bg-green-500"></div>
+                            <span class="font-medium">Well Stocked</span>
+                        </div>
+                        <span class="font-semibold">{{ stock_analysis.well_stocked }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 rounded-full bg-blue-500"></div>
+                            <span class="font-medium">Adequately Stocked</span>
+                        </div>
+                        <span class="font-semibold">{{ stock_analysis.adequately_stocked }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 rounded-full bg-yellow-500"></div>
+                            <span class="font-medium">Low Stock</span>
+                        </div>
+                        <span class="font-semibold">{{ stock_analysis.low_stock }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 rounded-full bg-red-500"></div>
+                            <span class="font-medium">Out of Stock</span>
+                        </div>
+                        <span class="font-semibold">{{ stock_analysis.out_of_stock }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Performers -->
+    {% if bottom_products_revenue %}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Products with No Sales (Last {{ period_days }} days)</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in bottom_products_revenue %}
+                    <tr>
+                        <td>
+                            <div class="text-sm">
+                                <div class="font-semibold">{{ product.name|truncatechars:40 }}</div>
+                                <div class="text-gray-600">{{ product.sku }}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-sm">{{ product.category.name|default:"No Category" }}</span>
+                        </td>
+                        <td>
+                            <span class="font-semibold">${{ product.price|floatformat:2 }}</span>
+                        </td>
+                        <td>
+                            <span class="badge {% if product.stock_quantity == 0 %}badge-error{% elif product.stock_quantity <= product.reorder_threshold %}badge-warning{% else %}badge-success{% endif %}">
+                                {{ product.stock_quantity }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="text-sm text-gray-600">{{ product.created_at|date:"M d, Y" }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

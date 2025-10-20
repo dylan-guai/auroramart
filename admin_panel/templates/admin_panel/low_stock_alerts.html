@@ -1,0 +1,202 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}Low Stock Alerts - AuroraMart Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Low Stock Alerts</h1>
+            <p class="text-gray-600 mt-2">Products requiring immediate attention</p>
+        </div>
+        <div class="flex space-x-4">
+            <a href="{% url 'admin_panel:receiving_management' %}" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                Manage Receiving
+            </a>
+            <a href="{% url 'admin_panel:inventory_overview' %}" class="btn btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Inventory
+            </a>
+        </div>
+    </div>
+
+    <!-- Alert Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+            <div class="text-3xl font-bold text-red-600">{{ critical_count }}</div>
+            <div class="text-sm text-gray-600">Critical (Out of Stock)</div>
+        </div>
+        <div class="bg-orange-50 border border-orange-200 rounded-lg p-6 text-center">
+            <div class="text-3xl font-bold text-orange-600">{{ warning_count }}</div>
+            <div class="text-sm text-gray-600">Warning (Low Stock)</div>
+        </div>
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+            <div class="text-3xl font-bold text-blue-600">{{ total_low_stock }}</div>
+            <div class="text-sm text-gray-600">Total Alerts</div>
+        </div>
+    </div>
+
+    <!-- Critical Products (Out of Stock) -->
+    {% if critical_products %}
+    <div class="bg-white rounded-lg shadow-sm border border-red-200 mb-8">
+        <div class="px-6 py-4 border-b border-red-200 bg-red-50">
+            <h2 class="text-xl font-semibold text-red-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                Critical Alert - Out of Stock ({{ critical_count }})
+            </h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>SKU</th>
+                        <th>Category</th>
+                        <th>Current Stock</th>
+                        <th>Reorder Threshold</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in critical_products %}
+                    <tr class="hover:bg-red-50">
+                        <td>
+                            <div class="flex items-center space-x-3">
+                                {% if product.images.exists %}
+                                    <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="w-12 h-12 object-cover rounded">
+                                {% else %}
+                                    <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
+                                        <span class="text-lg">📦</span>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <div class="font-semibold">{{ product.name }}</div>
+                                    <div class="text-sm text-gray-500">{{ product.brand.name|default:"No Brand" }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="font-mono text-sm">{{ product.sku }}</td>
+                        <td>
+                            <div class="text-sm">
+                                <div>{{ product.category.name|default:"-" }}</div>
+                                <div class="text-gray-500">{{ product.subcategory.name|default:"" }}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="font-semibold text-red-600">{{ product.stock_quantity }}</span>
+                        </td>
+                        <td>{{ product.reorder_threshold }}</td>
+                        <td class="font-semibold">${{ product.price|floatformat:2 }}</td>
+                        <td>
+                            <div class="flex space-x-2">
+                                <a href="{% url 'admin_panel:receiving_management' %}?product={{ product.id }}" class="btn btn-sm btn-error">Restock</a>
+                                <a href="{% url 'admin_panel:stock_adjustment_create' %}?product={{ product.id }}" class="btn btn-sm btn-outline">Adjust</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Warning Products (Low Stock) -->
+    {% if warning_products %}
+    <div class="bg-white rounded-lg shadow-sm border border-orange-200 mb-8">
+        <div class="px-6 py-4 border-b border-orange-200 bg-orange-50">
+            <h2 class="text-xl font-semibold text-orange-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Warning - Low Stock ({{ warning_count }})
+            </h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>SKU</th>
+                        <th>Category</th>
+                        <th>Current Stock</th>
+                        <th>Reorder Threshold</th>
+                        <th>Days of Cover</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in products_with_days %}
+                        {% if item.product.stock_quantity > 0 %}
+                        <tr class="hover:bg-orange-50">
+                            <td>
+                                <div class="flex items-center space-x-3">
+                                    {% if item.product.images.exists %}
+                                        <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="w-12 h-12 object-cover rounded">
+                                    {% else %}
+                                        <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
+                                            <span class="text-lg">📦</span>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <div class="font-semibold">{{ item.product.name }}</div>
+                                        <div class="text-sm text-gray-500">{{ item.product.brand.name|default:"No Brand" }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="font-mono text-sm">{{ item.product.sku }}</td>
+                            <td>
+                                <div class="text-sm">
+                                    <div>{{ item.product.category.name|default:"-" }}</div>
+                                    <div class="text-gray-500">{{ item.product.subcategory.name|default:"" }}</div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="font-semibold text-orange-600">{{ item.product.stock_quantity }}</span>
+                            </td>
+                            <td>{{ item.product.reorder_threshold }}</td>
+                            <td>
+                                <span class="text-sm {% if item.estimated_days < 7 %}text-red-600{% elif item.estimated_days < 14 %}text-orange-600{% else %}text-green-600{% endif %}">
+                                    {{ item.estimated_days|floatformat:0 }} days
+                                </span>
+                            </td>
+                            <td class="font-semibold">${{ item.product.price|floatformat:2 }}</td>
+                            <td>
+                                <div class="flex space-x-2">
+                                    <a href="{% url 'admin_panel:receiving_management' %}?product={{ item.product.id }}" class="btn btn-sm btn-warning">Restock</a>
+                                    <a href="{% url 'admin_panel:stock_adjustment_create' %}?product={{ item.product.id }}" class="btn btn-sm btn-outline">Adjust</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- No Alerts Message -->
+    {% if not critical_products and not warning_products %}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+        <div class="text-green-600 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">All Good!</h3>
+        <p class="text-gray-600">No low stock alerts at this time. All products are adequately stocked.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

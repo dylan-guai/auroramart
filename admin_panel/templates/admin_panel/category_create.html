@@ -1,0 +1,131 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+
+{% block title %}Create Category - AuroraMart Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Create Category</h1>
+            <p class="text-gray-600 mt-2">Add a new product category to the catalog</p>
+        </div>
+        <a href="{% url 'admin_panel:category_list' %}" class="btn btn-outline">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back to Categories
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Basic Information -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Basic Information</h3>
+                    
+                    <div class="form-control">
+                        <label class="label" for="id_name">
+                            <span class="label-text font-medium">Category Name *</span>
+                        </label>
+                        <input type="text" name="name" id="id_name" class="input input-bordered w-full" required>
+                        <div class="label">
+                            <span class="label-text-alt">Enter the category name</span>
+                        </div>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label" for="id_description">
+                            <span class="label-text font-medium">Description</span>
+                        </label>
+                        <textarea name="description" id="id_description" class="textarea textarea-bordered w-full" rows="4"></textarea>
+                        <div class="label">
+                            <span class="label-text-alt">Brief description of the category</span>
+                        </div>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label" for="id_image">
+                            <span class="label-text font-medium">Category Image</span>
+                        </label>
+                        <input type="file" name="image" id="id_image" class="file-input file-input-bordered w-full" accept="image/*">
+                        <div class="label">
+                            <span class="label-text-alt">Upload a representative image for this category</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEO & Settings -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">SEO & Settings</h3>
+                    
+                    <div class="form-control">
+                        <label class="label" for="id_slug">
+                            <span class="label-text font-medium">URL Slug</span>
+                        </label>
+                        <input type="text" name="slug" id="id_slug" class="input input-bordered w-full">
+                        <div class="label">
+                            <span class="label-text-alt">URL-friendly version of the name (auto-generated if empty)</span>
+                        </div>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label" for="id_meta_title">
+                            <span class="label-text font-medium">Meta Title</span>
+                        </label>
+                        <input type="text" name="meta_title" id="id_meta_title" class="input input-bordered w-full">
+                        <div class="label">
+                            <span class="label-text-alt">SEO title for search engines</span>
+                        </div>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label" for="id_meta_description">
+                            <span class="label-text font-medium">Meta Description</span>
+                        </label>
+                        <textarea name="meta_description" id="id_meta_description" class="textarea textarea-bordered w-full" rows="3"></textarea>
+                        <div class="label">
+                            <span class="label-text-alt">SEO description for search engines</span>
+                        </div>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label cursor-pointer">
+                            <span class="label-text font-medium">Active</span>
+                            <input type="checkbox" name="is_active" class="toggle toggle-primary" checked>
+                        </label>
+                        <div class="label">
+                            <span class="label-text-alt">Make this category visible to customers</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end space-x-4 mt-8 pt-6 border-t">
+                <a href="{% url 'admin_panel:category_list' %}" class="btn btn-outline">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Create Category
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Auto-generate slug from name
+document.getElementById('id_name').addEventListener('input', function() {
+    const slug = this.value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+    document.getElementById('id_slug').value = slug;
+});
+</script>
+{% endblock %}

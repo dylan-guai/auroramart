@@ -1,0 +1,192 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}Create Stock Adjustment - AuroraMart Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Create Stock Adjustment</h1>
+            <p class="text-gray-600 mt-2">Adjust product stock levels with audit trail</p>
+        </div>
+        <div class="flex space-x-4">
+            <a href="{% url 'admin_panel:inventory_overview' %}" class="btn btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Inventory
+            </a>
+        </div>
+    </div>
+
+    <!-- Stock Adjustment Form -->
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Product Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Product</label>
+                    <select name="product_id" class="select select-bordered w-full" required>
+                        <option value="">Select a product...</option>
+                        {% for product in products %}
+                            <option value="{{ product.id }}" {% if request.GET.product == product.id|stringformat:"s" %}selected{% endif %}>
+                                {{ product.sku }} - {{ product.name }} (Current: {{ product.stock_quantity }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Quantity Change -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Quantity Change</label>
+                    <div class="flex items-center space-x-4">
+                        <button type="button" onclick="adjustQuantity(-1)" class="btn btn-outline btn-sm">-</button>
+                        <input type="number" name="quantity_change" id="quantity_change" value="0" class="input input-bordered w-32 text-center" required>
+                        <button type="button" onclick="adjustQuantity(1)" class="btn btn-outline btn-sm">+</button>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1">Use positive numbers to add stock, negative to remove stock</p>
+                </div>
+
+                <!-- Reason -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Reason</label>
+                    <select name="reason" class="select select-bordered w-full" required>
+                        <option value="">Select a reason...</option>
+                        <option value="Sale">Sale</option>
+                        <option value="Return">Return</option>
+                        <option value="Shrinkage">Shrinkage</option>
+                        <option value="Correction">Correction</option>
+                        <option value="Stocktake">Stocktake</option>
+                        <option value="Damage">Damage</option>
+                        <option value="Theft">Theft</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <!-- Notes -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Notes (Optional)</label>
+                    <textarea name="notes" rows="3" class="textarea textarea-bordered w-full" placeholder="Additional details about this adjustment..."></textarea>
+                </div>
+
+                <!-- Current Stock Display -->
+                <div id="current_stock_info" class="bg-gray-50 rounded-lg p-4 hidden">
+                    <h3 class="font-semibold text-gray-800 mb-2">Current Stock Information</h3>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="font-medium">Current Stock:</span>
+                            <span id="current_stock" class="ml-2">-</span>
+                        </div>
+                        <div>
+                            <span class="font-medium">Reorder Threshold:</span>
+                            <span id="reorder_threshold" class="ml-2">-</span>
+                        </div>
+                        <div>
+                            <span class="font-medium">New Stock:</span>
+                            <span id="new_stock" class="ml-2 font-semibold">-</span>
+                        </div>
+                        <div>
+                            <span class="font-medium">Status:</span>
+                            <span id="new_status" class="ml-2">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-end space-x-4">
+                    <a href="{% url 'admin_panel:inventory_overview' %}" class="btn btn-outline">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Create Adjustment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Product data for JavaScript
+const productData = {
+    {% for product in products %}
+    {{ product.id }}: {
+        name: "{{ product.name }}",
+        sku: "{{ product.sku }}",
+        currentStock: {{ product.stock_quantity }},
+        reorderThreshold: {{ product.reorder_threshold }},
+        price: {{ product.price }}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+};
+
+function adjustQuantity(change) {
+    const input = document.getElementById('quantity_change');
+    const currentValue = parseInt(input.value) || 0;
+    const newValue = currentValue + change;
+    input.value = newValue;
+    updateStockInfo();
+}
+
+function updateStockInfo() {
+    const productSelect = document.querySelector('select[name="product_id"]');
+    const quantityInput = document.getElementById('quantity_change');
+    const infoDiv = document.getElementById('current_stock_info');
+    
+    if (productSelect.value && productData[productSelect.value]) {
+        const product = productData[productSelect.value];
+        const quantityChange = parseInt(quantityInput.value) || 0;
+        const newStock = product.currentStock + quantityChange;
+        
+        // Update display
+        document.getElementById('current_stock').textContent = product.currentStock;
+        document.getElementById('reorder_threshold').textContent = product.reorderThreshold;
+        document.getElementById('new_stock').textContent = newStock;
+        
+        // Determine status
+        let status = '';
+        let statusClass = '';
+        if (newStock === 0) {
+            status = 'Out of Stock';
+            statusClass = 'text-red-600';
+        } else if (newStock <= product.reorderThreshold) {
+            status = 'Low Stock';
+            statusClass = 'text-orange-600';
+        } else {
+            status = 'In Stock';
+            statusClass = 'text-green-600';
+        }
+        
+        const statusElement = document.getElementById('new_status');
+        statusElement.textContent = status;
+        statusElement.className = `ml-2 font-semibold ${statusClass}`;
+        
+        // Show/hide info div
+        infoDiv.classList.remove('hidden');
+        
+        // Warning for negative stock
+        if (newStock < 0) {
+            statusElement.textContent = 'Invalid (Negative Stock)';
+            statusElement.className = 'ml-2 font-semibold text-red-600';
+        }
+    } else {
+        infoDiv.classList.add('hidden');
+    }
+}
+
+// Event listeners
+document.querySelector('select[name="product_id"]').addEventListener('change', updateStockInfo);
+document.getElementById('quantity_change').addEventListener('input', updateStockInfo);
+
+// Initialize if product is pre-selected
+document.addEventListener('DOMContentLoaded', function() {
+    {% if request.GET.product %}
+    updateStockInfo();
+    {% endif %}
+});
+</script>
+{% endblock %}

@@ -1,0 +1,254 @@
+{% extends "core/base.html" %}
+
+{% block title %}
+Order Tracking | AuroraMart
+{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-4xl font-bold">Order Tracking</h1>
+      <a href="{% url 'profiles:order_history' %}" class="btn btn-outline">Back to Orders</a>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Order Details -->
+      <div class="lg:col-span-1">
+        <div class="bg-base-100 shadow-xl p-6 rounded-lg">
+          <h2 class="text-xl font-semibold mb-4">Order Details</h2>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="font-medium">Order Number:</span>
+              <span class="font-mono">{{ order.order_number }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Order Date:</span>
+              <span>{{ order.created_at|date:"M d, Y" }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Status:</span>
+              <span class="badge badge-{% if order.status == 'delivered' %}success{% elif order.status == 'shipped' %}info{% elif order.status == 'processing' %}warning{% elif order.status == 'confirmed' %}primary{% elif order.status == 'cancelled' %}error{% else %}error{% endif %}">
+                {{ order.get_status_display }}
+              </span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Payment:</span>
+              <span class="badge badge-success">{{ order.get_payment_status_display }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Total:</span>
+              <span class="font-semibold text-lg">${{ order.total_amount }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shipping Information -->
+        <div class="bg-base-100 shadow-xl p-6 rounded-lg mt-6">
+          <h2 class="text-xl font-semibold mb-4">Shipping Information</h2>
+          <div class="space-y-2">
+            <p class="font-medium">{{ order.shipping_name }}</p>
+            <p>{{ order.shipping_address }}</p>
+            <p>{{ order.shipping_city }}, {{ order.shipping_state }} {{ order.shipping_zip }}</p>
+            <p>{{ order.shipping_country }}</p>
+            {% if order.shipping_phone %}
+            <p>Phone: {{ order.shipping_phone }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Tracking Timeline -->
+      <div class="lg:col-span-2">
+        <div class="bg-base-100 shadow-xl p-6 rounded-lg">
+          <h2 class="text-xl font-semibold mb-6">Order Progress</h2>
+          
+          <div class="space-y-6">
+            {% for step in status_timeline %}
+            <div class="flex items-start space-x-4">
+              <div class="flex-shrink-0">
+                {% if step.completed %}
+                  <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </div>
+                {% elif step.status == order.status %}
+                  <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                    <div class="w-3 h-3 bg-white rounded-full"></div>
+                  </div>
+                {% else %}
+                  <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                    <div class="w-3 h-3 bg-gray-500 rounded-full"></div>
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-lg font-semibold {% if step.completed %}text-green-600{% elif step.status == order.status %}text-blue-600{% else %}text-gray-500{% endif %}">
+                    {{ step.title }}
+                  </h3>
+                  {% if step.date %}
+                    <span class="text-sm text-gray-500">{{ step.date|date:"M d, Y g:i A" }}</span>
+                  {% endif %}
+                </div>
+                <p class="text-gray-600 mt-1">{{ step.description }}</p>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="bg-base-100 shadow-xl p-6 rounded-lg mt-6">
+          <h2 class="text-xl font-semibold mb-4">Order Items</h2>
+          <div class="space-y-4">
+            {% for item in order.order_items.all %}
+            <div class="flex items-center justify-between border-b pb-4">
+              <div class="flex items-center space-x-3">
+                {% if item.product.image %}
+                  <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="w-12 h-12 object-cover rounded">
+                {% else %}
+                  <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
+                    <span class="text-lg">📦</span>
+                  </div>
+                {% endif %}
+                <div>
+                  <h3 class="font-semibold">{{ item.product.name }}</h3>
+                  <p class="text-sm text-gray-600">Qty: {{ item.quantity }}</p>
+                </div>
+              </div>
+              <span class="font-semibold">${{ item.price_at_purchase }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="bg-base-100 shadow-xl p-6 rounded-lg mt-6">
+          <h2 class="text-xl font-semibold mb-4">Actions</h2>
+          <div class="flex flex-wrap gap-4">
+            <a href="{% url 'profiles:reorder' order.order_id %}" class="btn btn-outline">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+              Reorder Items
+            </a>
+            
+            {% if order.can_be_cancelled %}
+            <form method="post" action="{% url 'profiles:cancel_order' order.order_id %}" class="inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-error" onclick="return confirm('Are you sure you want to cancel this order? This action cannot be undone and will automatically process a refund.')">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                Cancel Order
+              </button>
+            </form>
+            {% endif %}
+            
+            {% if order.can_be_returned and not order.has_return_request %}
+            <form method="post" action="{% url 'profiles:return_order' order.order_id %}" class="inline">
+              {% csrf_token %}
+              <div class="modal" id="returnModal">
+                <div class="modal-box">
+                  <h3 class="font-bold text-lg mb-4">Return Order</h3>
+                  <div class="form-control mb-4">
+                    <label class="label">
+                      <span class="label-text">Reason for Return</span>
+                    </label>
+                    <select name="reason" class="select select-bordered w-full" required>
+                      <option value="">Select a reason</option>
+                      <option value="defective">Defective Product</option>
+                      <option value="wrong_item">Wrong Item</option>
+                      <option value="not_as_described">Not as Described</option>
+                      <option value="changed_mind">Changed Mind</option>
+                      <option value="damaged_shipping">Damaged in Shipping</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div class="form-control mb-4">
+                    <label class="label">
+                      <span class="label-text">Additional Details</span>
+                    </label>
+                    <textarea name="description" class="textarea textarea-bordered" rows="3" placeholder="Please provide additional details about your return..."></textarea>
+                  </div>
+                  <div class="modal-action">
+                    <button type="button" class="btn btn-ghost" onclick="returnModal.close()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit Return Request</button>
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-primary" onclick="returnModal.showModal()">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Return Items
+              </button>
+            </form>
+            {% endif %}
+          </div>
+        <!-- Return Request Status -->
+        {% if return_request %}
+        <div class="bg-base-100 shadow-xl p-6 rounded-lg mt-6">
+          <h2 class="text-xl font-semibold mb-4">Return Request</h2>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="font-medium">Status:</span>
+              <span class="badge badge-{% if return_request.status == 'closed' %}success{% elif return_request.status == 'refunded' %}success{% elif return_request.status == 'received' %}info{% elif return_request.status == 'shipped' %}warning{% elif return_request.status == 'approved' %}primary{% elif return_request.status == 'rejected' %}error{% else %}warning{% endif %}">
+                {{ return_request.get_status_display }}
+              </span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Reason:</span>
+              <span>{{ return_request.get_reason_display }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Requested:</span>
+              <span>{{ return_request.requested_at|date:"M d, Y g:i A" }}</span>
+            </div>
+            {% if return_request.approved_at %}
+            <div class="flex justify-between">
+              <span class="font-medium">Approved:</span>
+              <span>{{ return_request.approved_at|date:"M d, Y g:i A" }}</span>
+            </div>
+            {% endif %}
+            {% if return_request.shipped_at %}
+            <div class="flex justify-between">
+              <span class="font-medium">Shipped Back:</span>
+              <span>{{ return_request.shipped_at|date:"M d, Y g:i A" }}</span>
+            </div>
+            {% endif %}
+            {% if return_request.received_at %}
+            <div class="flex justify-between">
+              <span class="font-medium">Received:</span>
+              <span>{{ return_request.received_at|date:"M d, Y g:i A" }}</span>
+            </div>
+            {% endif %}
+            {% if return_request.refunded_at %}
+            <div class="flex justify-between">
+              <span class="font-medium">Refunded:</span>
+              <span>{{ return_request.refunded_at|date:"M d, Y g:i A" }}</span>
+            </div>
+            {% endif %}
+            {% if return_request.description %}
+            <div class="mt-4">
+              <span class="font-medium">Description:</span>
+              <p class="text-gray-600 mt-1">{{ return_request.description }}</p>
+            </div>
+            {% endif %}
+            {% if return_request.admin_notes %}
+            <div class="mt-4">
+              <span class="font-medium">Admin Notes:</span>
+              <p class="text-gray-600 mt-1">{{ return_request.admin_notes }}</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+
+<script>
+// Modal functionality is handled by DaisyUI
+</script>
+{% endblock %}

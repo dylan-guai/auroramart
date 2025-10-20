@@ -1,0 +1,233 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}Create User | AuroraMart Admin{% endblock %}
+
+{% block page_title %}Create Admin User{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="text-sm breadcrumbs">
+    <ul>
+        <li><a href="{% url 'admin_panel:dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'admin_panel:user_list' %}">User Management</a></li>
+        <li>Create User</li>
+    </ul>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="card bg-white shadow-lg">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-user-plus mr-2"></i>
+                Create New Admin User
+            </h3>
+        </div>
+        <div class="card-body">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Basic Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-control">
+                        <label class="label" for="{{ form.username.id_for_label }}">
+                            <span class="label-text font-medium">Username *</span>
+                        </label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.username.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-control">
+                        <label class="label" for="{{ form.email.id_for_label }}">
+                            <span class="label-text font-medium">Email *</span>
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.email.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-control">
+                        <label class="label" for="{{ form.first_name.id_for_label }}">
+                            <span class="label-text font-medium">First Name *</span>
+                        </label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.first_name.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-control">
+                        <label class="label" for="{{ form.last_name.id_for_label }}">
+                            <span class="label-text font-medium">Last Name *</span>
+                        </label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.last_name.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Password Fields -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-control">
+                        <label class="label" for="{{ form.password1.id_for_label }}">
+                            <span class="label-text font-medium">Password *</span>
+                        </label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.password1.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="label">
+                            <span class="label-text-alt">Password must be at least 8 characters long</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-control">
+                        <label class="label" for="{{ form.password2.id_for_label }}">
+                            <span class="label-text font-medium">Confirm Password *</span>
+                        </label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.password2.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Admin Information -->
+                <div class="divider">Admin Information</div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-control">
+                        <label class="label" for="{{ form.employee_id.id_for_label }}">
+                            <span class="label-text font-medium">Employee ID *</span>
+                        </label>
+                        {{ form.employee_id }}
+                        {% if form.employee_id.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.employee_id.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-control">
+                        <label class="label" for="{{ form.role.id_for_label }}">
+                            <span class="label-text font-medium">Role *</span>
+                        </label>
+                        {{ form.role }}
+                        {% if form.role.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.role.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-control">
+                        <label class="label" for="{{ form.department.id_for_label }}">
+                            <span class="label-text font-medium">Department *</span>
+                        </label>
+                        {{ form.department }}
+                        {% if form.department.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.department.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-control">
+                        <label class="label" for="{{ form.phone.id_for_label }}">
+                            <span class="label-text font-medium">Phone</span>
+                        </label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.phone.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-4 pt-6 border-t">
+                    <a href="{% url 'admin_panel:user_list' %}" class="btn btn-outline">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save mr-2"></i>
+                        Create User
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Role Information -->
+    <div class="card bg-blue-50 border-blue-200 mt-6">
+        <div class="card-body">
+            <h4 class="font-semibold text-blue-800 mb-3">
+                <i class="fas fa-info-circle mr-2"></i>
+                Role Information
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <strong>Super Admin:</strong> Full system access
+                </div>
+                <div>
+                    <strong>Admin:</strong> General administrative access
+                </div>
+                <div>
+                    <strong>Merchandiser:</strong> Product catalog management
+                </div>
+                <div>
+                    <strong>Inventory Manager:</strong> Stock and inventory management
+                </div>
+                <div>
+                    <strong>CRM Manager:</strong> Customer relationship management
+                </div>
+                <div>
+                    <strong>Data Analyst:</strong> Analytics and reporting access
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

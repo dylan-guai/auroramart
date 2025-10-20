@@ -1,0 +1,234 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}Product Management - AuroraMart Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Product Management</h1>
+            <p class="text-gray-600 mt-2">Manage your product catalog and inventory</p>
+        </div>
+        <div class="flex space-x-4">
+            <a href="{% url 'admin_panel:product_bulk_export' %}" class="btn btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Export CSV
+            </a>
+            <a href="{% url 'admin_panel:product_bulk_import' %}" class="btn btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                </svg>
+                Import CSV
+            </a>
+            <a href="{% url 'admin_panel:product_create' %}" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add Product
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div class="text-3xl font-bold text-blue-600">{{ total_products }}</div>
+            <div class="text-sm text-gray-600">Total Products</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div class="text-3xl font-bold text-green-600">{{ active_products }}</div>
+            <div class="text-sm text-gray-600">Active Products</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div class="text-3xl font-bold text-orange-600">{{ low_stock_products }}</div>
+            <div class="text-sm text-gray-600">Low Stock</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div class="text-3xl font-bold text-red-600">{{ out_of_stock_products }}</div>
+            <div class="text-sm text-gray-600">Out of Stock</div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                <input type="text" name="search" value="{{ search_query }}" placeholder="SKU, name, or description..." class="input input-bordered w-full">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <select name="category" class="select select-bordered w-full">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {% if category_filter == category.id|stringformat:"s" %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Brand</label>
+                <select name="brand" class="select select-bordered w-full">
+                    <option value="">All Brands</option>
+                    {% for brand in brands %}
+                        <option value="{{ brand.id }}" {% if brand_filter == brand.id|stringformat:"s" %}selected{% endif %}>
+                            {{ brand.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select name="status" class="select select-bordered w-full">
+                    <option value="">All Status</option>
+                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                    <option value="low_stock" {% if status_filter == 'low_stock' %}selected{% endif %}>Low Stock</option>
+                    <option value="out_of_stock" {% if status_filter == 'out_of_stock' %}selected{% endif %}>Out of Stock</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                <select name="sort" class="select select-bordered w-full">
+                    <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Name A-Z</option>
+                    <option value="-name" {% if sort_by == '-name' %}selected{% endif %}>Name Z-A</option>
+                    <option value="price" {% if sort_by == 'price' %}selected{% endif %}>Price Low-High</option>
+                    <option value="-price" {% if sort_by == '-price' %}selected{% endif %}>Price High-Low</option>
+                    <option value="created" {% if sort_by == 'created' %}selected{% endif %}>Oldest First</option>
+                    <option value="-created" {% if sort_by == '-created' %}selected{% endif %}>Newest First</option>
+                    <option value="stock" {% if sort_by == 'stock' %}selected{% endif %}>Stock Low-High</option>
+                    <option value="-stock" {% if sort_by == '-stock' %}selected{% endif %}>Stock High-Low</option>
+                </select>
+            </div>
+            <div class="md:col-span-5 flex items-end">
+                <button type="submit" class="btn btn-primary mr-2">Apply Filters</button>
+                <a href="{% url 'admin_panel:product_list' %}" class="btn btn-outline">Clear</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Product Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Products ({{ page_obj.paginator.count }} total)</h2>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>SKU</th>
+                        <th>Category</th>
+                        <th>Brand</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in page_obj %}
+                    <tr>
+                        <td>
+                            <div class="flex items-center space-x-3">
+                                {% if product.images.exists %}
+                                    <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="w-12 h-12 object-cover rounded">
+                                {% else %}
+                                    <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
+                                        <span class="text-lg">📦</span>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <div class="font-semibold">{{ product.name }}</div>
+                                    <div class="text-sm text-gray-500">{{ product.short_description|truncatechars:50 }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="font-mono text-sm">{{ product.sku }}</td>
+                        <td>
+                            <div class="text-sm">
+                                <div>{{ product.category.name|default:"-" }}</div>
+                                <div class="text-gray-500">{{ product.subcategory.name|default:"" }}</div>
+                            </div>
+                        </td>
+                        <td class="text-sm">{{ product.brand.name|default:"-" }}</td>
+                        <td>
+                            <div class="text-sm">
+                                <div class="font-semibold">${{ product.price|floatformat:2 }}</div>
+                                {% if product.discount_price %}
+                                    <div class="text-green-600">${{ product.discount_price|floatformat:2 }}</div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="font-semibold {% if product.stock_quantity == 0 %}text-red-600{% elif product.stock_quantity <= product.reorder_threshold %}text-orange-600{% else %}text-green-600{% endif %}">
+                                {{ product.stock_quantity }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if product.is_active %}
+                                {% if product.stock_quantity == 0 %}
+                                    <span class="badge badge-error">Out of Stock</span>
+                                {% elif product.stock_quantity <= product.reorder_threshold %}
+                                    <span class="badge badge-warning">Low Stock</span>
+                                {% else %}
+                                    <span class="badge badge-success">Active</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge badge-ghost">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="flex space-x-2">
+                                <a href="{% url 'admin_panel:product_detail' product.id %}" class="btn btn-sm btn-outline">View</a>
+                                <a href="{% url 'admin_panel:product_edit' product.id %}" class="btn btn-sm btn-primary">Edit</a>
+                                <a href="{% url 'admin_panel:product_delete' product.id %}" class="btn btn-sm btn-error" onclick="return confirm('Are you sure you want to deactivate this product?')">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-8 text-gray-500">
+                            No products found matching your criteria.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="px-6 py-4 border-t border-gray-200">
+            <div class="flex justify-between items-center">
+                <div class="text-sm text-gray-500">
+                    Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} products
+                </div>
+                <div class="join">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="join-item btn btn-sm">Previous</a>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <span class="join-item btn btn-sm btn-active">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="join-item btn btn-sm">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="join-item btn btn-sm">Next</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

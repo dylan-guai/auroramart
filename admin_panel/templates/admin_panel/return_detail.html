@@ -1,0 +1,235 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}
+Return Detail | Admin Panel
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-4xl font-bold">Return Request #{{ return_request.id }}</h1>
+    <div class="flex space-x-4">
+      <a href="{% url 'admin_panel:return_management' %}" class="btn btn-outline">Back to Returns</a>
+    </div>
+  </div>
+  
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Return Details -->
+    <div class="bg-base-100 shadow-xl p-6 rounded-lg">
+      <h2 class="text-xl font-semibold mb-4">Return Details</h2>
+      <div class="space-y-3">
+        <div class="flex justify-between">
+          <span class="font-medium">Return ID:</span>
+          <span class="font-mono">#{{ return_request.id }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="font-medium">Order Number:</span>
+          <span class="font-mono">{{ return_request.order.order_number }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="font-medium">Status:</span>
+          <span class="badge badge-{% if return_request.status == 'closed' %}success{% elif return_request.status == 'refunded' %}success{% elif return_request.status == 'received' %}info{% elif return_request.status == 'shipped' %}warning{% elif return_request.status == 'approved' %}primary{% elif return_request.status == 'rejected' %}error{% else %}warning{% endif %}">
+            {{ return_request.get_status_display }}
+          </span>
+        </div>
+        <div class="flex justify-between">
+          <span class="font-medium">Reason:</span>
+          <span>{{ return_request.get_reason_display }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="font-medium">Requested:</span>
+          <span>{{ return_request.requested_at|date:"M d, Y g:i A" }}</span>
+        </div>
+        {% if return_request.approved_at %}
+        <div class="flex justify-between">
+          <span class="font-medium">Approved:</span>
+          <span>{{ return_request.approved_at|date:"M d, Y g:i A" }}</span>
+        </div>
+        {% endif %}
+        {% if return_request.shipped_at %}
+        <div class="flex justify-between">
+          <span class="font-medium">Shipped Back:</span>
+          <span>{{ return_request.shipped_at|date:"M d, Y g:i A" }}</span>
+        </div>
+        {% endif %}
+        {% if return_request.received_at %}
+        <div class="flex justify-between">
+          <span class="font-medium">Received:</span>
+          <span>{{ return_request.received_at|date:"M d, Y g:i A" }}</span>
+        </div>
+        {% endif %}
+        {% if return_request.refunded_at %}
+        <div class="flex justify-between">
+          <span class="font-medium">Refunded:</span>
+          <span>{{ return_request.refunded_at|date:"M d, Y g:i A" }}</span>
+        </div>
+        {% endif %}
+        {% if return_request.closed_at %}
+        <div class="flex justify-between">
+          <span class="font-medium">Closed:</span>
+          <span>{{ return_request.closed_at|date:"M d, Y g:i A" }}</span>
+        </div>
+        {% endif %}
+      </div>
+      
+      {% if return_request.description %}
+      <div class="mt-6">
+        <h3 class="font-semibold mb-2">Customer Description:</h3>
+        <p class="text-gray-600">{{ return_request.description }}</p>
+      </div>
+      {% endif %}
+      
+      {% if return_request.admin_notes %}
+      <div class="mt-6">
+        <h3 class="font-semibold mb-2">Admin Notes:</h3>
+        <p class="text-gray-600">{{ return_request.admin_notes }}</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Customer Information -->
+    <div class="bg-base-100 shadow-xl p-6 rounded-lg">
+      <h2 class="text-xl font-semibold mb-4">Customer Information</h2>
+      <div class="space-y-3">
+        <div class="flex justify-between">
+          <span class="font-medium">Name:</span>
+          <span>{{ return_request.order.user.get_full_name|default:return_request.order.user.username }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="font-medium">Email:</span>
+          <span>{{ return_request.order.user.email }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="font-medium">Order Date:</span>
+          <span>{{ return_request.order.created_at|date:"M d, Y" }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="font-medium">Order Total:</span>
+          <span class="font-semibold">${{ return_request.order.total_amount }}</span>
+        </div>
+      </div>
+      
+      <div class="mt-6">
+        <h3 class="font-semibold mb-2">Shipping Address:</h3>
+        <div class="text-gray-600">
+          <p>{{ return_request.order.shipping_name }}</p>
+          <p>{{ return_request.order.shipping_address }}</p>
+          <p>{{ return_request.order.shipping_city }}, {{ return_request.order.shipping_state }} {{ return_request.order.shipping_zip }}</p>
+          <p>{{ return_request.order.shipping_country }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Items -->
+  <div class="bg-base-100 shadow-xl p-6 rounded-lg mt-8">
+    <h2 class="text-xl font-semibold mb-4">Order Items</h2>
+    <div class="space-y-4">
+      {% for item in return_request.order.order_items.all %}
+      <div class="flex items-center justify-between border-b pb-4">
+        <div class="flex items-center space-x-3">
+          {% if item.product.images.exists %}
+            <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="w-12 h-12 object-cover rounded">
+          {% else %}
+            <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
+              <span class="text-lg">📦</span>
+            </div>
+          {% endif %}
+          <div>
+            <h3 class="font-semibold">{{ item.product.name }}</h3>
+            <p class="text-sm text-gray-600">SKU: {{ item.product.sku }}</p>
+            <p class="text-sm text-gray-600">Qty: {{ item.quantity }}</p>
+          </div>
+        </div>
+        <span class="font-semibold">${{ item.price_at_purchase }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="bg-base-100 shadow-xl p-6 rounded-lg mt-8">
+    <h2 class="text-xl font-semibold mb-4">Actions</h2>
+    <div class="flex flex-wrap gap-4">
+      {% if return_request.can_be_approved %}
+        <form method="post" action="{% url 'admin_panel:approve_return' return_request.id %}" class="inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-success" onclick="return confirm('Approve this return request?')">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Approve Return
+          </button>
+        </form>
+        
+        <button class="btn btn-error" onclick="rejectModal.showModal()">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+          Reject Return
+        </button>
+      {% elif return_request.can_be_shipped %}
+        <form method="post" action="{% url 'admin_panel:mark_return_shipped' return_request.id %}" class="inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-warning" onclick="return confirm('Mark return as shipped back by customer?')">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+            </svg>
+            Mark as Shipped Back
+          </button>
+        </form>
+      {% elif return_request.can_be_received %}
+        <form method="post" action="{% url 'admin_panel:mark_return_received' return_request.id %}" class="inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-info" onclick="return confirm('Mark return as received and restore stock?')">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Mark as Received
+          </button>
+        </form>
+      {% elif return_request.can_be_refunded %}
+        <form method="post" action="{% url 'admin_panel:process_refund' return_request.id %}" class="inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-success" onclick="return confirm('Process refund for ${{ return_request.order.total_amount }}?')">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+            </svg>
+            Process Refund
+          </button>
+        </form>
+      {% elif return_request.can_be_closed %}
+        <form method="post" action="{% url 'admin_panel:close_return' return_request.id %}" class="inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-success" onclick="return confirm('Close this return process?')">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Close Return Process
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal" id="rejectModal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg mb-4">Reject Return Request</h3>
+    <form method="post" action="{% url 'admin_panel:reject_return' return_request.id %}">
+      {% csrf_token %}
+      <div class="form-control mb-4">
+        <label class="label">
+          <span class="label-text">Reason for Rejection</span>
+        </label>
+        <textarea name="admin_notes" class="textarea textarea-bordered" rows="3" placeholder="Please provide a reason for rejecting this return request..." required></textarea>
+      </div>
+      <div class="modal-action">
+        <button type="button" class="btn btn-ghost" onclick="rejectModal.close()">Cancel</button>
+        <button type="submit" class="btn btn-error">Reject Return</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

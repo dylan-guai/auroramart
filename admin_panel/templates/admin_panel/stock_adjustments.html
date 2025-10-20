@@ -1,0 +1,130 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}Stock Adjustments - AuroraMart Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Stock Adjustments</h1>
+            <p class="text-gray-600 mt-2">History of stock level changes and movements</p>
+        </div>
+        <div class="flex space-x-4">
+            <a href="{% url 'admin_panel:stock_adjustment_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus mr-2"></i>
+                New Adjustment
+            </a>
+            <a href="{% url 'admin_panel:inventory_export' %}" class="btn btn-outline">
+                <i class="fas fa-download mr-2"></i>
+                Export CSV
+            </a>
+        </div>
+    </div>
+
+    <!-- Stock Adjustments Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Product</th>
+                        <th>SKU</th>
+                        <th>Quantity Change</th>
+                        <th>Reason</th>
+                        <th>Reference</th>
+                        <th>User</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for adjustment in page_obj %}
+                    <tr>
+                        <td>
+                            <div class="text-sm">{{ adjustment.date|date:"Y-m-d H:i" }}</div>
+                        </td>
+                        <td>
+                            <div class="font-semibold">{{ adjustment.product.name|truncatechars:40 }}</div>
+                            <div class="text-gray-500">{{ adjustment.product.category.name|default:"No Category" }}</div>
+                        </td>
+                        <td>{{ adjustment.product.sku }}</td>
+                        <td>
+                            <span class="font-bold {% if adjustment.quantity_change > 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                                {% if adjustment.quantity_change > 0 %}+{% endif %}{{ adjustment.quantity_change }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge {% if adjustment.reason == 'Sale' %}badge-info{% elif adjustment.reason == 'Restock' %}badge-success{% elif adjustment.reason == 'Damaged' %}badge-error{% else %}badge-warning{% endif %}">
+                                {{ adjustment.reason }}
+                            </span>
+                        </td>
+                        <td>{{ adjustment.reference }}</td>
+                        <td>
+                            {% if adjustment.user %}
+                                <div class="text-sm">
+                                    <div class="font-medium">{{ adjustment.user.get_full_name|default:adjustment.user.username }}</div>
+                                    <div class="text-gray-500">{{ adjustment.user.email }}</div>
+                                </div>
+                            {% else %}
+                                <span class="text-gray-400">System</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-8 text-gray-500">
+                            <i class="fas fa-inbox text-gray-300 text-4xl mb-4"></i>
+                            <p class="text-lg">No stock adjustments recorded</p>
+                            <p class="text-sm">Stock changes will appear here</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="px-6 py-4 border-t border-gray-200">
+            <div class="flex justify-between items-center">
+                <div class="text-sm text-gray-500">
+                    Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} adjustments
+                </div>
+                <div class="join">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" class="join-item btn btn-sm">Previous</a>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <button class="join-item btn btn-sm btn-active">{{ num }}</button>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?page={{ num }}" class="join-item btn btn-sm">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="join-item btn btn-sm">Next</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Info Box -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-8">
+        <h3 class="text-lg font-semibold text-blue-800 mb-2">
+            <i class="fas fa-info-circle mr-2"></i>
+            About Stock Adjustments
+        </h3>
+        <div class="text-sm text-blue-700 space-y-2">
+            <p>• All stock level changes are tracked with full audit trail</p>
+            <p>• Positive numbers indicate stock increases (restocking, returns)</p>
+            <p>• Negative numbers indicate stock decreases (sales, damage, loss)</p>
+            <p>• Each adjustment includes timestamp, reason, and user information</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

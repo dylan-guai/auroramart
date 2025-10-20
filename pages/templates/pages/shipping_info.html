@@ -1,0 +1,54 @@
+{% extends "pages/base_page.html" %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+        <h2 class="text-2xl font-semibold text-green-800 mb-4">Shipping Information</h2>
+        <p class="text-green-700">
+            Fast, reliable shipping across Southeast Asia.
+        </p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">Shipping Options</h3>
+            <div class="space-y-3">
+                <div>
+                    <p class="font-semibold text-gray-700">Standard Shipping</p>
+                    <p class="text-gray-600 text-sm">3-5 business days - Free on orders over $50</p>
+                </div>
+                <div>
+                    <p class="font-semibold text-gray-700">Express Shipping</p>
+                    <p class="text-gray-600 text-sm">1-2 business days - $15</p>
+                </div>
+                <div>
+                    <p class="font-semibold text-gray-700">Same Day Delivery</p>
+                    <p class="text-gray-600 text-sm">Available in Singapore - $25</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">Shipping Areas</h3>
+            <div class="space-y-2">
+                <p class="text-gray-600">• Singapore</p>
+                <p class="text-gray-600">• Malaysia</p>
+                <p class="text-gray-600">• Thailand</p>
+                <p class="text-gray-600">• Indonesia</p>
+                <p class="text-gray-600">• Philippines</p>
+                <p class="text-gray-600">• Vietnam</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <h3 class="text-xl font-semibold text-blue-800 mb-3">Important Notes</h3>
+        <ul class="text-blue-700 space-y-2">
+            <li>• Delivery times may vary during peak seasons</li>
+            <li>• Some items may require additional processing time</li>
+            <li>• We'll send you tracking information once your order ships</li>
+            <li>• Contact us if you don't receive your order within the expected timeframe</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,246 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}Association Rules Dashboard - AuroraMart Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Association Rules Dashboard</h1>
+            <p class="text-gray-600 mt-2">Manage AI-powered product recommendations</p>
+        </div>
+        <div class="flex space-x-4">
+            <form method="POST" action="{% url 'admin_panel:retrain_association_rules' %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline" onclick="return confirm('This will retrain the association rules model. Continue?')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Retrain Model
+                </button>
+            </form>
+            <a href="{% url 'admin_panel:association_rules_export' %}" class="btn btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Export CSV
+            </a>
+            <a href="{% url 'admin_panel:ai_recommendations_analytics' %}" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                View Analytics
+            </a>
+        </div>
+    </div>
+
+    <!-- Model Status -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Model Status</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="text-center">
+                <div class="text-2xl font-bold {% if model_status.decision_tree_loaded %}text-green-600{% else %}text-red-600{% endif %}">
+                    {% if model_status.decision_tree_loaded %}✓{% else %}✗{% endif %}
+                </div>
+                <div class="text-sm text-gray-600">Decision Tree Model</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold {% if model_status.association_rules_loaded %}text-green-600{% else %}text-red-600{% endif %}">
+                    {% if model_status.association_rules_loaded %}✓{% else %}✗{% endif %}
+                </div>
+                <div class="text-sm text-gray-600">Association Rules</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold {% if model_status.models_loaded %}text-green-600{% else %}text-red-600{% endif %}">
+                    {% if model_status.models_loaded %}✓{% else %}✗{% endif %}
+                </div>
+                <div class="text-sm text-gray-600">Overall Status</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div class="text-3xl font-bold text-blue-600">{{ total_rules }}</div>
+            <div class="text-sm text-gray-600">Total Rules</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div class="text-3xl font-bold text-green-600">{{ approved_rules }}</div>
+            <div class="text-sm text-gray-600">Approved Rules</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div class="text-3xl font-bold text-orange-600">{{ pending_rules }}</div>
+            <div class="text-sm text-gray-600">Pending Review</div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+        <form method="GET" class="flex items-center space-x-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Status Filter</label>
+                <select name="status" class="select select-bordered">
+                    <option value="">All Rules</option>
+                    <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending Review</option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button type="submit" class="btn btn-primary mr-2">Apply Filter</button>
+                <a href="{% url 'admin_panel:association_rules_dashboard' %}" class="btn btn-outline">Clear</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Association Rules Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Association Rules ({{ page_obj.paginator.count }} total)</h2>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th>Rule</th>
+                        <th>Support</th>
+                        <th>Confidence</th>
+                        <th>Lift</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rule in page_obj %}
+                    <tr>
+                        <td>
+                            <div class="text-sm">
+                                <div class="font-semibold">Rule {{ rule.id }}</div>
+                                <div class="text-gray-600">
+                                    {% for product in rule.antecedent_products %}
+                                        {{ product.name }}{% if not forloop.last %} + {% endif %}
+                                    {% endfor %}
+                                    →
+                                    {% for product in rule.consequent_products %}
+                                        {{ product.name }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="font-semibold">{{ rule.support|floatformat:3 }}</span>
+                        </td>
+                        <td>
+                            <span class="font-semibold">{{ rule.confidence|floatformat:3 }}</span>
+                        </td>
+                        <td>
+                            <span class="font-semibold">{{ rule.lift|floatformat:3 }}</span>
+                        </td>
+                        <td>
+                            {% if rule.approved %}
+                                <span class="badge badge-success">Approved</span>
+                            {% else %}
+                                <span class="badge badge-warning">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="text-sm">{{ rule.created_at|date:"M d, Y" }}</span>
+                        </td>
+                        <td>
+                            <div class="flex space-x-2">
+                                <a href="{% url 'admin_panel:association_rule_detail' rule.id %}" class="btn btn-sm btn-outline">View</a>
+                                {% if not rule.approved %}
+                                    <form method="POST" action="{% url 'admin_panel:approve_association_rule' rule.id %}" class="inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Approve this rule?')">Approve</button>
+                                    </form>
+                                    <button onclick="openRejectModal('{{ rule.id }}')" class="btn btn-sm btn-error">Reject</button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-8 text-gray-500">
+                            No association rules found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="px-6 py-4 border-t border-gray-200">
+            <div class="flex justify-between items-center">
+                <div class="text-sm text-gray-500">
+                    Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} rules
+                </div>
+                <div class="join">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" class="join-item btn btn-sm">Previous</a>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <span class="join-item btn btn-sm btn-active">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?page={{ num }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" class="join-item btn btn-sm">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" class="join-item btn btn-sm">Next</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Reject Rule Modal -->
+<div id="rejectModal" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4">Reject Association Rule</h3>
+        
+        <form method="POST" id="rejectForm">
+            {% csrf_token %}
+            <input type="hidden" name="rule_id" id="modal_rule_id">
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Reason for Rejection</label>
+                <textarea name="reason" rows="3" class="textarea textarea-bordered w-full" placeholder="Please provide a reason for rejecting this rule..." required></textarea>
+            </div>
+            
+            <div class="modal-action">
+                <button type="button" onclick="closeRejectModal()" class="btn btn-outline">Cancel</button>
+                <button type="submit" class="btn btn-error">Reject Rule</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openRejectModal(ruleId) {
+    document.getElementById('modal_rule_id').value = ruleId;
+    document.getElementById('rejectForm').action = `/admin-panel/association-rules/${ruleId}/reject/`;
+    document.getElementById('rejectModal').classList.add('modal-open');
+}
+
+function closeRejectModal() {
+    document.getElementById('rejectModal').classList.remove('modal-open');
+}
+
+// Close modal when clicking outside
+document.getElementById('rejectModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeRejectModal();
+    }
+});
+</script>
+{% endblock %}

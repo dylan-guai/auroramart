@@ -1,0 +1,195 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+
+{% block title %}Edit Product - AuroraMart Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Edit Product</h1>
+            <p class="text-gray-600 mt-2">Update product information</p>
+        </div>
+        <a href="{% url 'admin_panel:product_list' %}" class="btn btn-outline">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back to Products
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Basic Information -->
+                <div class="space-y-6">
+                    <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Basic Information</h3>
+                    
+                    <div class="form-control">
+                        <label class="label" for="id_name">
+                            <span class="label-text font-medium">Product Name *</span>
+                        </label>
+                        <input type="text" name="name" id="id_name" class="input input-bordered w-full" value="{{ product.name }}" required>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label" for="id_sku">
+                            <span class="label-text font-medium">SKU *</span>
+                        </label>
+                        <input type="text" name="sku" id="id_sku" class="input input-bordered w-full" value="{{ product.sku }}" required>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label" for="id_description">
+                            <span class="label-text font-medium">Description</span>
+                        </label>
+                        <textarea name="description" id="id_description" class="textarea textarea-bordered w-full" rows="4">{{ product.description }}</textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="form-control">
+                            <label class="label" for="id_price">
+                                <span class="label-text font-medium">Price *</span>
+                            </label>
+                            <input type="number" name="price" id="id_price" class="input input-bordered w-full" step="0.01" min="0" value="{{ product.price }}" required>
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label" for="id_stock_quantity">
+                                <span class="label-text font-medium">Stock Quantity *</span>
+                            </label>
+                            <input type="number" name="stock_quantity" id="id_stock_quantity" class="input input-bordered w-full" min="0" value="{{ product.stock_quantity }}" required>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="form-control">
+                            <label class="label" for="id_reorder_threshold">
+                                <span class="label-text font-medium">Reorder Threshold</span>
+                            </label>
+                            <input type="number" name="reorder_threshold" id="id_reorder_threshold" class="input input-bordered w-full" min="0" value="{{ product.reorder_threshold }}">
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label" for="id_weight">
+                                <span class="label-text font-medium">Weight (kg)</span>
+                            </label>
+                            <input type="number" name="weight" id="id_weight" class="input input-bordered w-full" step="0.01" min="0" value="{{ product.weight }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category & Brand -->
+                <div class="space-y-6">
+                    <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Category & Brand</h3>
+                    
+                    <div class="form-control">
+                        <label class="label" for="id_category">
+                            <span class="label-text font-medium">Category *</span>
+                        </label>
+                        <select name="category" id="id_category" class="select select-bordered w-full" required>
+                            <option value="">Select a category</option>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}" {% if product.category.id == category.id %}selected{% endif %}>{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label" for="id_subcategory">
+                            <span class="label-text font-medium">Subcategory</span>
+                        </label>
+                        <select name="subcategory" id="id_subcategory" class="select select-bordered w-full">
+                            <option value="">Select a subcategory</option>
+                            {% for subcategory in subcategories %}
+                                <option value="{{ subcategory.id }}" {% if product.subcategory.id == subcategory.id %}selected{% endif %}>{{ subcategory.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label" for="id_brand">
+                            <span class="label-text font-medium">Brand</span>
+                        </label>
+                        <select name="brand" id="id_brand" class="select select-bordered w-full">
+                            <option value="">Select a brand</option>
+                            {% for brand in brands %}
+                                <option value="{{ brand.id }}" {% if product.brand.id == brand.id %}selected{% endif %}>{{ brand.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label" for="id_image">
+                            <span class="label-text font-medium">Product Image</span>
+                        </label>
+                        <input type="file" name="image" id="id_image" class="file-input file-input-bordered w-full" accept="image/*">
+                        {% if product.image %}
+                        <div class="mt-2">
+                            <p class="text-sm text-gray-600">Current image:</p>
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-24 h-24 object-cover rounded border">
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label cursor-pointer">
+                            <span class="label-text font-medium">Active</span>
+                            <input type="checkbox" name="is_active" class="toggle toggle-primary" {% if product.is_active %}checked{% endif %}>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEO Section -->
+            <div class="mt-8 pt-6 border-t">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">SEO Settings</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-control">
+                        <label class="label" for="id_meta_title">
+                            <span class="label-text font-medium">Meta Title</span>
+                        </label>
+                        <input type="text" name="meta_title" id="id_meta_title" class="input input-bordered w-full" value="{{ product.meta_title }}">
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label" for="id_meta_description">
+                            <span class="label-text font-medium">Meta Description</span>
+                        </label>
+                        <textarea name="meta_description" id="id_meta_description" class="textarea textarea-bordered w-full" rows="3">{{ product.meta_description }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end space-x-4 mt-8 pt-6 border-t">
+                <a href="{% url 'admin_panel:product_list' %}" class="btn btn-outline">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Update Product
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Update subcategories when category changes
+document.getElementById('id_category').addEventListener('change', function() {
+    const categoryId = this.value;
+    const subcategorySelect = document.getElementById('id_subcategory');
+    
+    // Clear current options
+    subcategorySelect.innerHTML = '<option value="">Select a subcategory</option>';
+    
+    if (categoryId) {
+        // In a real implementation, you would fetch subcategories via AJAX
+        // For now, we'll keep the current subcategories
+    }
+});
+</script>
+{% endblock %}

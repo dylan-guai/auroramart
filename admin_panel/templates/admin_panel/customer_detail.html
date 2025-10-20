@@ -1,0 +1,179 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}{{ customer.user.get_full_name }} - Customer Detail{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">{{ customer.user.get_full_name }}</h1>
+            <p class="text-gray-600 mt-2">{{ customer.user.email }}</p>
+        </div>
+        <div class="flex space-x-4">
+            <a href="{% url 'admin_panel:customer_list' %}" class="btn btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to List
+            </a>
+            {% if customer.demographics_complete %}
+                <a href="{% url 'admin_panel:customer_rescore' customer.id %}" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Re-score Customer
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Customer Overview -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <!-- Customer Info -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Customer Information</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">Personal Details</h3>
+                        <div class="space-y-2 text-sm">
+                            <div><span class="font-medium">Name:</span> {{ customer.user.get_full_name }}</div>
+                            <div><span class="font-medium">Email:</span> {{ customer.user.email }}</div>
+                            <div><span class="font-medium">Gender:</span> {{ customer.get_gender_display }}</div>
+                            <div><span class="font-medium">Age:</span> {{ customer.age }} years</div>
+                            <div><span class="font-medium">Joined:</span> {{ customer.user.date_joined|date:"M d, Y" }}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">Demographics</h3>
+                        <div class="space-y-2 text-sm">
+                            <div><span class="font-medium">Employment:</span> {{ customer.get_employment_status_display }}</div>
+                            <div><span class="font-medium">Education:</span> {{ customer.get_education_display }}</div>
+                            <div><span class="font-medium">Income:</span> {{ customer.get_monthly_income_sgd_display }}</div>
+                            <div><span class="font-medium">Household:</span> {{ customer.household_size }} people</div>
+                            <div><span class="font-medium">Children:</span> {% if customer.has_children %}Yes{% else %}No{% endif %}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Prediction -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">AI Prediction</h2>
+                {% if predicted_category %}
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-blue-600 mb-2">{{ predicted_category }}</div>
+                        {% if prediction_confidence %}
+                            <div class="text-sm text-gray-600 mb-4">{{ prediction_confidence|floatformat:1 }}% confidence</div>
+                        {% endif %}
+                        <div class="text-sm text-gray-500">Predicted Preferred Category</div>
+                    </div>
+                {% else %}
+                    <div class="text-center text-gray-500">
+                        <div class="text-lg mb-2">No Prediction Available</div>
+                        <div class="text-sm">Complete demographics to enable AI prediction</div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div class="text-2xl font-bold text-blue-600">{{ total_orders }}</div>
+            <div class="text-sm text-gray-600">Total Orders</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div class="text-2xl font-bold text-green-600">${{ total_spent|floatformat:2 }}</div>
+            <div class="text-sm text-gray-600">Total Spent</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            <div class="text-2xl font-bold text-purple-600">${{ avg_order_value|floatformat:2 }}</div>
+            <div class="text-sm text-gray-600">Average Order Value</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+            {% if last_order %}
+                <div class="text-2xl font-bold text-orange-600">{{ last_order.created_at|date:"M d" }}</div>
+                <div class="text-sm text-gray-600">Last Order</div>
+            {% else %}
+                <div class="text-2xl font-bold text-gray-400">-</div>
+                <div class="text-sm text-gray-600">No Orders</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <h2 class="text-xl font-semibold text-gray-800">Recent Orders</h2>
+            <a href="{% url 'admin_panel:customer_orders' customer.id %}" class="btn btn-sm btn-outline">View All Orders</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td class="font-mono text-sm">#{{ order.pk }}</td>
+                        <td>{{ order.created_at|date:"M d, Y" }}</td>
+                        <td>{{ order.order_items.count }} items</td>
+                        <td class="font-semibold">${{ order.total_amount|floatformat:2 }}</td>
+                        <td>
+                            <span class="badge badge-success">{{ order.status }}</span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-8 text-gray-500">
+                            No orders found for this customer.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Wishlist Items -->
+    {% if wishlist_items %}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Wishlist Items</h2>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for item in wishlist_items %}
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center space-x-3">
+                        {% if item.product.images.exists %}
+                            <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="w-12 h-12 object-cover rounded">
+                        {% else %}
+                            <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
+                                <span class="text-lg">📦</span>
+                            </div>
+                        {% endif %}
+                        <div class="flex-1">
+                            <div class="font-semibold text-sm">{{ item.product.name }}</div>
+                            <div class="text-sm text-gray-600">${{ item.product.price|floatformat:2 }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,176 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ category.name }} - AuroraMart{% endblock %}
+
+{% block body %}
+<!-- Breadcrumbs -->
+<div class="bg-gray-100 py-4">
+    <div class="container mx-auto px-4">
+        <nav class="text-sm breadcrumbs">
+            <ul>
+                {% for breadcrumb in breadcrumbs %}
+                {% if breadcrumb.url %}
+                <li><a href="{{ breadcrumb.url }}" class="text-blue-600 hover:text-blue-800">{{ breadcrumb.name }}</a></li>
+                {% else %}
+                <li class="text-gray-600">{{ breadcrumb.name }}</li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Category Header -->
+<div class="bg-white py-12">
+    <div class="container mx-auto px-4">
+        <div class="text-center">
+            {% if category.image %}
+            <div class="mb-6">
+                <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-32 h-32 mx-auto rounded-full object-cover shadow-lg">
+            </div>
+            {% endif %}
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">{{ category.name }}</h1>
+            {% if category.description %}
+            <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">{{ category.description }}</p>
+            {% endif %}
+            <div class="flex items-center justify-center space-x-4 text-sm text-gray-500">
+                <span>{{ total_products }} products</span>
+                <span>•</span>
+                <span>{{ subcategories.count }} subcategories</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Subcategories Grid -->
+{% if subcategories %}
+<div class="bg-gray-50 py-12">
+    <div class="container mx-auto px-4">
+        <h2 class="text-2xl font-bold text-gray-800 mb-8 text-center">Browse by Subcategory</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for subcategory in subcategories %}
+            <a href="{% url 'item:subcategory_detail' category.slug subcategory.slug %}" 
+               class="card bg-white shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                <div class="card-body text-center p-6">
+                    <h3 class="card-title text-lg font-semibold text-gray-800 mb-2">{{ subcategory.name }}</h3>
+                    {% if subcategory.description %}
+                    <p class="text-sm text-gray-600">{{ subcategory.description|truncatechars:60 }}</p>
+                    {% endif %}
+                    <div class="mt-4">
+                        <span class="text-blue-600 font-medium">View Products →</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Products Section -->
+<div class="bg-white py-12">
+    <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="text-2xl font-bold text-gray-800">All Products in {{ category.name }}</h2>
+            
+            <!-- Sort Dropdown -->
+            <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn btn-outline">
+                    Sort by: 
+                    {% if sort_by == 'name' %}Name{% endif %}
+                    {% if sort_by == 'price_low' %}Price: Low to High{% endif %}
+                    {% if sort_by == 'price_high' %}Price: High to Low{% endif %}
+                    {% if sort_by == 'rating' %}Highest Rated{% endif %}
+                    {% if sort_by == 'newest' %}Newest{% endif %}
+                </div>
+                <ul tabindex="0" class="dropdown-content menu p-2 shadow-lg bg-white rounded-box w-52">
+                    <li><a href="?sort=name" class="{% if sort_by == 'name' %}active{% endif %}">Name</a></li>
+                    <li><a href="?sort=price_low" class="{% if sort_by == 'price_low' %}active{% endif %}">Price: Low to High</a></li>
+                    <li><a href="?sort=price_high" class="{% if sort_by == 'price_high' %}active{% endif %}">Price: High to Low</a></li>
+                    <li><a href="?sort=rating" class="{% if sort_by == 'rating' %}active{% endif %}">Highest Rated</a></li>
+                    <li><a href="?sort=newest" class="{% if sort_by == 'newest' %}active{% endif %}">Newest</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        {% if products %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for product in products %}
+            <div class="card bg-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <figure class="relative">
+                    {% if product.images.exists %}
+                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="w-full h-48 object-cover">
+                    {% else %}
+                        <div class="w-full h-48 bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center">
+                            <span class="text-4xl">📦</span>
+                        </div>
+                    {% endif %}
+                    {% if product.discount_price %}
+                        <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-sm font-semibold">
+                            SALE
+                        </div>
+                    {% endif %}
+                </figure>
+                
+                <div class="card-body p-4">
+                    <h3 class="card-title text-lg">{{ product.name }}</h3>
+                    <p class="text-sm text-gray-600">{{ product.short_description|truncatechars:60 }}</p>
+                    
+                    <div class="flex items-center justify-between mt-4">
+                        <div class="flex items-center">
+                            <span class="text-2xl font-bold text-blue-600">${{ product.current_price }}</span>
+                            {% if product.discount_price %}
+                                <span class="text-sm text-gray-500 line-through ml-2">${{ product.price }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-yellow-500">★</span>
+                            <span class="text-sm ml-1">{{ product.average_rating|floatformat:1 }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-actions justify-end mt-4">
+                        <a href="{% url 'item:product_detail' product.id %}" class="btn btn-primary btn-sm min-h-8 px-2 text-xs">View Details</a>
+                        <form method="post" action="{% url 'item:add_to_cart' product.id %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary btn-sm min-h-8 px-2 text-xs">Add to Cart</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if products.has_other_pages %}
+        <div class="flex justify-center mt-12">
+            <div class="btn-group">
+                {% if products.has_previous %}
+                    <a href="?page={{ products.previous_page_number }}{% if sort_by %}&sort={{ sort_by }}{% endif %}" class="btn btn-outline">Previous</a>
+                {% endif %}
+                
+                {% for num in products.paginator.page_range %}
+                    {% if products.number == num %}
+                        <span class="btn btn-active">{{ num }}</span>
+                    {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                        <a href="?page={{ num }}{% if sort_by %}&sort={{ sort_by }}{% endif %}" class="btn btn-outline">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if products.has_next %}
+                    <a href="?page={{ products.next_page_number }}{% if sort_by %}&sort={{ sort_by }}{% endif %}" class="btn btn-outline">Next</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="text-center py-12">
+            <div class="text-6xl mb-4">📦</div>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">No products found</h3>
+            <p class="text-gray-500">There are no products available in this category at the moment.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

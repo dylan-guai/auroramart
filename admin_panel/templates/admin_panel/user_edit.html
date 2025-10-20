@@ -1,0 +1,206 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}Edit {{ user.get_full_name }} | AuroraMart Admin{% endblock %}
+
+{% block page_title %}Edit User{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="text-sm breadcrumbs">
+    <ul>
+        <li><a href="{% url 'admin_panel:dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'admin_panel:user_list' %}">User Management</a></li>
+        <li><a href="{% url 'admin_panel:user_detail' user.id %}">{{ user.get_full_name }}</a></li>
+        <li>Edit</li>
+    </ul>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="card bg-white shadow-lg">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-user-edit mr-2"></i>
+                Edit Admin User: {{ user.get_full_name }}
+            </h3>
+        </div>
+        <div class="card-body">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Basic Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-control">
+                        <label class="label" for="{{ form.username.id_for_label }}">
+                            <span class="label-text font-medium">Username *</span>
+                        </label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.username.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-control">
+                        <label class="label" for="{{ form.email.id_for_label }}">
+                            <span class="label-text font-medium">Email *</span>
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.email.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-control">
+                        <label class="label" for="{{ form.first_name.id_for_label }}">
+                            <span class="label-text font-medium">First Name *</span>
+                        </label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.first_name.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-control">
+                        <label class="label" for="{{ form.last_name.id_for_label }}">
+                            <span class="label-text font-medium">Last Name *</span>
+                        </label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.last_name.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Admin Information -->
+                <div class="divider">Admin Information</div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-control">
+                        <label class="label" for="{{ form.role.id_for_label }}">
+                            <span class="label-text font-medium">Role</span>
+                        </label>
+                        {{ form.role }}
+                        {% if form.role.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.role.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-control">
+                        <label class="label" for="{{ form.department.id_for_label }}">
+                            <span class="label-text font-medium">Department</span>
+                        </label>
+                        {{ form.department }}
+                        {% if form.department.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {% for error in form.department.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-control">
+                    <label class="label" for="{{ form.phone.id_for_label }}">
+                        <span class="label-text font-medium">Phone</span>
+                    </label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                        <div class="text-red-500 text-sm mt-1">
+                            {% for error in form.phone.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Current Status -->
+                <div class="divider">Account Status</div>
+                
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Account Status:</span>
+                            {% if admin_user_profile.is_active_admin %}
+                                <span class="badge badge-success">Active</span>
+                            {% else %}
+                                <span class="badge badge-error">Inactive</span>
+                            {% endif %}
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Employee ID:</span>
+                            <span class="font-medium">{{ admin_user_profile.employee_id|default:"N/A" }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Date Joined:</span>
+                            <span class="font-medium">{{ user.date_joined|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Last Login:</span>
+                            <span class="font-medium">
+                                {% if user.last_login %}
+                                    {{ user.last_login|date:"M d, Y H:i" }}
+                                {% else %}
+                                    Never
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-4 pt-6 border-t">
+                    <a href="{% url 'admin_panel:user_detail' user.id %}" class="btn btn-outline">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save mr-2"></i>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Security Notice -->
+    <div class="card bg-yellow-50 border-yellow-200 mt-6">
+        <div class="card-body">
+            <h4 class="font-semibold text-yellow-800 mb-3">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                Security Notice
+            </h4>
+            <div class="text-sm text-yellow-700 space-y-2">
+                <p>• Changing a user's role will immediately affect their access permissions</p>
+                <p>• All role changes are logged in the audit trail</p>
+                <p>• Users will need to log out and log back in to see permission changes</p>
+                {% if user == request.user %}
+                <p class="font-semibold">• You are editing your own account - changes will take effect immediately</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,335 @@
+{% extends "core/base.html" %}
+
+{% block title %}
+{% if current_category %}
+{{ current_category.name }} Products | AuroraMart
+{% else %}
+All Products | AuroraMart
+{% endif %}
+{% endblock %}
+
+{% block body %}
+
+<!-- Enhanced Page Header -->
+<div class="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 text-white py-20 relative overflow-hidden">
+  <!-- Animated background elements -->
+  <div class="absolute inset-0 overflow-hidden">
+    <div class="absolute -top-20 -right-20 w-40 h-40 bg-white/10 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+    <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-white/10 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse" style="animation-delay: 2s;"></div>
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-white/5 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse" style="animation-delay: 4s;"></div>
+  </div>
+  
+  <div class="container mx-auto px-4 relative z-10">
+    <div class="text-center">
+      {% if current_category %}
+        <div class="mb-6">
+          <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+            {% if current_category.image %}
+              <img src="{{ current_category.image.url }}" alt="{{ current_category.name }}" class="w-12 h-12 object-cover rounded-full">
+            {% else %}
+              <span class="text-2xl">{{ current_category.name|first }}</span>
+            {% endif %}
+          </div>
+        </div>
+        <h1 class="text-6xl font-bold mb-6 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+          {{ current_category.name }} Products
+        </h1>
+        <p class="text-xl opacity-90 max-w-3xl mx-auto leading-relaxed">
+          {{ current_category.description|default:"Discover our amazing "|add:current_category.name|lower }} collection
+        </p>
+      {% else %}
+        <div class="mb-6">
+          <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+          </div>
+        </div>
+        <h1 class="text-6xl font-bold mb-6 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+          All Products
+        </h1>
+        <p class="text-xl opacity-90 max-w-3xl mx-auto leading-relaxed">
+          Discover our complete product catalog with AI-powered recommendations
+        </p>
+      {% endif %}
+      
+      <!-- Product count badge -->
+      <div class="mt-8">
+        <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-white/20 backdrop-blur-sm border border-white/30">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+          </svg>
+          {{ products|length }} products available
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Filters and Sorting -->
+<div class="bg-white shadow-sm border-b">
+  <div class="container mx-auto px-4 py-6">
+    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+      
+      <!-- Filter and Sort Controls -->
+      <div class="flex flex-wrap gap-4">
+        <!-- Categories Filter -->
+        <div class="dropdown dropdown-hover dropdown-bottom relative">
+          <div tabindex="0" role="button" class="btn btn-outline btn-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
+            </svg>
+            Categories
+          </div>
+          <ul tabindex="0" class="dropdown-content menu p-2 shadow-lg bg-white rounded-box w-80 z-[9999] mt-2 absolute top-full left-0">
+            <li class="menu-title">
+              <span>Browse by Category</span>
+            </li>
+            <li>
+              <a href="{% url 'item:product_list' %}" class="font-semibold text-blue-600 hover:text-blue-800">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                All Categories
+              </a>
+            </li>
+            {% for category in categories %}
+            <li>
+              <div class="flex items-center justify-between">
+                <a href="{% url 'item:category_detail' category.slug %}" class="font-medium text-gray-700 hover:text-blue-600">
+                  {{ category.name }}
+                </a>
+                <span class="text-xs text-gray-500">{{ category.subcategories.count }} subcategories</span>
+              </div>
+              {% if category.subcategories.exists %}
+              <ul class="ml-4 mt-1 space-y-1">
+                {% for subcategory in category.subcategories.all|slice:":4" %}
+                <li>
+                  <a href="{% url 'item:subcategory_detail' category.slug subcategory.slug %}" class="text-sm text-gray-600 hover:text-gray-800">
+                    {{ subcategory.name }}
+                  </a>
+                </li>
+                {% endfor %}
+                {% if category.subcategories.count > 4 %}
+                <li>
+                  <a href="{% url 'item:category_detail' category.slug %}" class="text-xs text-blue-500 hover:text-blue-700">
+                    View all {{ category.subcategories.count }} subcategories →
+                  </a>
+                </li>
+                {% endif %}
+              </ul>
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        
+        <!-- Sort Options -->
+        <div class="dropdown dropdown-hover dropdown-bottom relative">
+          <div tabindex="0" role="button" class="btn btn-outline btn-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+            </svg>
+            Sort by
+          </div>
+          <ul tabindex="0" class="dropdown-content menu p-2 shadow-lg bg-white rounded-box w-52 z-[9999] mt-2 absolute top-full left-0">
+            <li class="menu-title">
+              <span>Sort Options</span>
+            </li>
+            <li><a href="?{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}sort=name" class="{% if sort_by == 'name' %}active{% endif %}">Name A-Z</a></li>
+            <li><a href="?{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}sort=-name" class="{% if sort_by == '-name' %}active{% endif %}">Name Z-A</a></li>
+            <li><a href="?{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}sort=price_low" class="{% if sort_by == 'price_low' %}active{% endif %}">Price Low-High</a></li>
+            <li><a href="?{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}sort=price_high" class="{% if sort_by == 'price_high' %}active{% endif %}">Price High-Low</a></li>
+            <li><a href="?{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}sort=rating" class="{% if sort_by == 'rating' %}active{% endif %}">Highest Rated</a></li>
+            <li><a href="?{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}sort=newest" class="{% if sort_by == 'newest' %}active{% endif %}">Newest First</a></li>
+            <li><a href="?{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}sort=popular" class="{% if sort_by == 'popular' %}active{% endif %}">Most Popular</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- Results Count -->
+      <div class="text-sm text-gray-600 font-medium">
+        Showing {{ total_products|default:products|length }} products
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Products Grid -->
+<div class="container mx-auto px-4 py-8">
+  {% if products %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {% for product in products %}
+      <div class="card bg-white shadow-lg hover-lift group relative overflow-hidden">
+        <figure class="relative overflow-hidden">
+          {% if product.images.exists %}
+            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110">
+          {% else %}
+            <div class="w-full h-64 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+              <span class="text-6xl animate-float">📦</span>
+            </div>
+          {% endif %}
+          
+          <!-- Overlay gradient on hover -->
+          <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          
+          <!-- Sale Badge -->
+          {% if product.discount_price %}
+            <div class="absolute top-3 right-3 bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-semibold animate-glow shadow-lg">
+              SALE
+            </div>
+          {% endif %}
+          
+          <!-- Stock Badge -->
+          {% if product.stock_quantity <= 5 %}
+            <div class="absolute top-3 left-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
+              Low Stock
+            </div>
+          {% endif %}
+          
+          <!-- Quick View Button (appears on hover) -->
+          <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <a href="{% url 'item:product_detail' product.id %}" class="btn btn-primary btn-sm glass-effect">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              Quick View
+            </a>
+          </div>
+        </figure>
+        
+        <div class="card-body p-6">
+          <div class="flex items-start justify-between mb-2">
+            <h3 class="card-title text-lg leading-tight flex-1 pr-2">{{ product.name }}</h3>
+            {% if product.brand %}
+              <span class="badge badge-outline text-xs whitespace-nowrap flex-shrink-0 max-w-24 truncate" title="{{ product.brand.name }}">{{ product.brand.name }}</span>
+            {% endif %}
+          </div>
+          
+          <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ product.short_description|truncatechars:80 }}</p>
+          
+          <!-- Rating -->
+          <div class="flex items-center mb-4">
+            <div class="flex items-center">
+              {% for i in "12345" %}
+                {% if forloop.counter <= product.average_rating %}
+                  <span class="text-yellow-400">★</span>
+                {% else %}
+                  <span class="text-gray-300">★</span>
+                {% endif %}
+              {% endfor %}
+            </div>
+            <span class="text-sm text-gray-600 ml-2">{{ product.average_rating|floatformat:1 }} ({{ product.review_count }})</span>
+          </div>
+          
+          <!-- Price -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center">
+              <span class="text-2xl font-bold text-blue-600">${{ product.current_price }}</span>
+              {% if product.discount_price %}
+                <span class="text-sm text-gray-500 line-through ml-2">${{ product.price }}</span>
+                <span class="badge badge-success ml-2">
+                  {{ product.discount_percentage|floatformat:0 }}% OFF
+                </span>
+              {% endif %}
+            </div>
+            <div class="text-sm text-gray-500">
+              SKU: {{ product.sku }}
+            </div>
+          </div>
+          
+          <!-- Actions -->
+          <div class="card-actions justify-between">
+            <a href="{% url 'item:product_detail' product.id %}" class="btn btn-primary btn-sm flex-1 min-h-8 px-2 text-xs">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              View Details
+            </a>
+            
+            <form method="post" action="{% url 'item:add_to_cart' product.id %}" class="inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-secondary btn-sm min-h-8 px-2 text-xs" 
+                      {% if product.stock_quantity == 0 %}disabled{% endif %}>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                Add to Cart
+              </button>
+            </form>
+          </div>
+          
+          <!-- Stock Status -->
+          <div class="mt-3">
+            {% if product.stock_quantity > 10 %}
+              <span class="text-green-600 text-sm font-medium">✓ In Stock ({{ product.stock_quantity }} available)</span>
+            {% elif product.stock_quantity > 0 %}
+              <span class="text-orange-600 text-sm font-medium">⚠ Only {{ product.stock_quantity }} left</span>
+            {% else %}
+              <span class="text-red-600 text-sm font-medium">✗ Out of Stock</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if products.has_other_pages %}
+    <div class="flex justify-center mt-12">
+      <div class="join">
+        {% if products.has_previous %}
+        <a href="?page={{ products.previous_page_number }}" class="join-item btn">«</a>
+        {% else %}
+        <button class="join-item btn btn-disabled">«</button>
+        {% endif %}
+
+        {% for num in products.paginator.page_range %}
+          {% if products.number == num %}
+            <button class="join-item btn btn-active">{{ num }}</button>
+          {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+            <a href="?page={{ num }}" class="join-item btn">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+
+        {% if products.has_next %}
+        <a href="?page={{ products.next_page_number }}" class="join-item btn">»</a>
+        {% else %}
+        <button class="join-item btn btn-disabled">»</button>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+  {% else %}
+    <!-- No Products Found -->
+    <div class="text-center py-16">
+      <div class="w-32 h-32 mx-auto mb-8 bg-gray-100 rounded-full flex items-center justify-center">
+        <span class="text-6xl">🔍</span>
+      </div>
+      <h2 class="text-3xl font-bold text-gray-800 mb-4">No Products Found</h2>
+      <p class="text-lg text-gray-600 mb-8">We couldn't find any products matching your criteria.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="{% url 'item:product_list' %}" class="btn btn-primary">View All Products</a>
+        <a href="{% url 'core:index' %}" class="btn btn-outline">Back to Home</a>
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+<!-- AI Recommendation Banner -->
+{% if user.is_authenticated %}
+<div class="bg-gradient-to-r from-purple-500 to-blue-500 text-white py-8">
+  <div class="container mx-auto px-4 text-center">
+    <h3 class="text-2xl font-bold mb-2">🎯 AI-Powered Recommendations</h3>
+    <p class="text-lg opacity-90 mb-4">Let our AI help you discover products you'll love</p>
+    <a href="{% url 'profiles:profile' %}" class="btn btn-white btn-outline">
+      Get Personalized Recommendations
+    </a>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

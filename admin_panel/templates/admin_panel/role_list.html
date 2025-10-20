@@ -1,0 +1,122 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}Role Management | AuroraMart Admin{% endblock %}
+
+{% block page_title %}Role Management{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="text-sm breadcrumbs">
+    <ul>
+        <li><a href="{% url 'admin_panel:dashboard' %}">Dashboard</a></li>
+        <li>Role Management</li>
+    </ul>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Role Management</h1>
+            <p class="text-gray-600 mt-1">Manage admin roles and permissions</p>
+        </div>
+        <a href="{% url 'admin_panel:role_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus mr-2"></i>
+            Create Role
+        </a>
+    </div>
+
+    <!-- Roles Table -->
+    <div class="card bg-white shadow-lg">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-users-cog mr-2"></i>
+                Admin Roles
+                <span class="badge badge-primary">{{ roles.count }} total</span>
+            </h3>
+        </div>
+        <div class="card-body p-0">
+            {% if roles %}
+                <div class="overflow-x-auto">
+                    <table class="table table-zebra w-full">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th>Description</th>
+                                <th>Permissions</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for role in roles %}
+                                <tr>
+                                    <td>
+                                        <div class="flex items-center space-x-3">
+                                            <div class="avatar placeholder">
+                                                <div class="bg-primary text-primary-content rounded-full w-10">
+                                                    <span class="text-sm">{{ role.name|first|upper }}</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="font-bold">{{ role.get_name_display }}</div>
+                                                <div class="text-sm text-gray-500">{{ role.name }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="max-w-xs">
+                                            {{ role.description|default:"No description" }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="flex flex-wrap gap-1">
+                                            {% for permission in role.permissions.all|slice:":3" %}
+                                                <span class="badge badge-outline badge-sm">{{ permission.name }}</span>
+                                            {% endfor %}
+                                            {% if role.permissions.count > 3 %}
+                                                <span class="badge badge-outline badge-sm">+{{ role.permissions.count|add:"-3" }} more</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if role.is_active %}
+                                            <span class="badge badge-success">Active</span>
+                                        {% else %}
+                                            <span class="badge badge-error">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="text-sm">
+                                            {{ role.created_at|date:"M d, Y" }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="flex space-x-2">
+                                            <a href="{% url 'admin_panel:role_edit' role.id %}" class="btn btn-sm btn-outline">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-8">
+                    <i class="fas fa-users-cog text-4xl text-gray-300 mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No roles found</h3>
+                    <p class="text-gray-500 mb-4">Create your first admin role to get started.</p>
+                    <a href="{% url 'admin_panel:role_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus mr-2"></i>
+                        Create Role
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

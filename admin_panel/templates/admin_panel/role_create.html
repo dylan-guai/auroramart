@@ -1,0 +1,103 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}Create Role | AuroraMart Admin{% endblock %}
+
+{% block page_title %}Create Role{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="text-sm breadcrumbs">
+    <ul>
+        <li><a href="{% url 'admin_panel:dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'admin_panel:role_list' %}">Role Management</a></li>
+        <li>Create Role</li>
+    </ul>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="card bg-white shadow-lg">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-plus mr-2"></i>
+                Create New Role
+            </h3>
+        </div>
+        <div class="card-body">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Basic Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-control">
+                        <label class="label" for="name">
+                            <span class="label-text font-medium">Role Name *</span>
+                        </label>
+                        <select name="name" id="name" class="select select-bordered" required>
+                            <option value="">Select a role</option>
+                            {% for role_value, role_label in role_choices %}
+                                <option value="{{ role_value }}">{{ role_label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-control">
+                        <label class="label" for="is_active">
+                            <span class="label-text font-medium">Status</span>
+                        </label>
+                        <label class="label cursor-pointer">
+                            <input type="checkbox" name="is_active" class="checkbox checkbox-primary" checked>
+                            <span class="label-text">Active</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-control">
+                    <label class="label" for="description">
+                        <span class="label-text font-medium">Description</span>
+                    </label>
+                    <textarea name="description" id="description" rows="3" 
+                              class="textarea textarea-bordered" 
+                              placeholder="Describe the role and its responsibilities"></textarea>
+                </div>
+                
+                <!-- Permissions -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-medium">Permissions</span>
+                    </label>
+                    <div class="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {% regroup permissions by content_type.app_label as permission_groups %}
+                            {% for group in permission_groups %}
+                                <div class="space-y-2">
+                                    <h4 class="font-semibold text-gray-800 capitalize">{{ group.grouper }}</h4>
+                                    {% for permission in group.list %}
+                                        <label class="label cursor-pointer justify-start">
+                                            <input type="checkbox" name="permissions" value="{{ permission.id }}" 
+                                                   class="checkbox checkbox-sm checkbox-primary mr-2">
+                                            <span class="label-text text-sm">{{ permission.name }}</span>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex justify-end space-x-4">
+                    <a href="{% url 'admin_panel:role_list' %}" class="btn btn-outline">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save mr-2"></i>
+                        Create Role
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

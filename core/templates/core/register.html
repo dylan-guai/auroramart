@@ -1,0 +1,159 @@
+{% extends "core/base.html" %}
+
+{% block title %}
+Register | AuroraMart
+{% endblock %}
+
+{% block body %}
+
+<div class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="text-center">
+      <!-- Logo -->
+      <div class="flex justify-center mb-6">
+        <img src="/media/AuroraMart Logo.png" alt="AuroraMart" class="h-16 w-16 drop-shadow-lg">
+      </div>
+      <h2 class="text-3xl font-bold text-gray-900">Create your AuroraMart account</h2>
+      <p class="mt-2 text-sm text-gray-600">
+        Join thousands of satisfied customers
+      </p>
+    </div>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="bg-white py-8 px-4 shadow-xl sm:rounded-xl sm:px-10 border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
+      {% if message %}
+        <div class="alert alert-error mb-6">
+          <span>{{ message|escape }}</span>
+        </div>
+      {% endif %}
+
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
+            <input type="text" name="first_name" id="first_name" required class="mt-1 input input-bordered w-full" placeholder="John" value="{{ form_data.first_name|default:'' }}">
+          </div>
+          <div>
+            <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
+            <input type="text" name="last_name" id="last_name" required class="mt-1 input input-bordered w-full" placeholder="Doe" value="{{ form_data.last_name|default:'' }}">
+          </div>
+        </div>
+
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+          <input type="text" name="username" id="username" required class="mt-1 input input-bordered w-full" placeholder="johndoe123" value="{{ form_data.username|default:'' }}">
+          <p class="mt-1 text-xs text-gray-500">Must be at least 6 characters, no special characters</p>
+        </div>
+
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+          <input type="email" name="email" id="email" required class="mt-1 input input-bordered w-full" placeholder="john@example.com" value="{{ form_data.email|default:'' }}">
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+          <input type="password" name="password" id="password" required class="mt-1 input input-bordered w-full" placeholder="••••••••">
+          <p class="mt-1 text-xs text-gray-500">Must be at least 8 characters with numbers and letters</p>
+        </div>
+
+        <div>
+          <label for="confirmation" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+          <input type="password" name="confirmation" id="confirmation" required class="mt-1 input input-bordered w-full" placeholder="••••••••">
+        </div>
+
+        <!-- Demographics Section -->
+        <div class="border-t pt-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Demographics</h3>
+          <p class="text-sm text-gray-600 mb-4">Help us personalize your shopping experience</p>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="age" class="block text-sm font-medium text-gray-700">Age</label>
+              <input type="number" name="age" id="age" min="13" max="120" class="mt-1 input input-bordered w-full" placeholder="25" value="{{ form_data.age|default:'' }}">
+            </div>
+            <div>
+              <label for="gender" class="block text-sm font-medium text-gray-700">Gender</label>
+              <select name="gender" id="gender" class="mt-1 select select-bordered w-full">
+                <option value="">Select Gender</option>
+                <option value="M" {% if form_data.gender == 'M' %}selected{% endif %}>Male</option>
+                <option value="F" {% if form_data.gender == 'F' %}selected{% endif %}>Female</option>
+                <option value="O" {% if form_data.gender == 'O' %}selected{% endif %}>Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <label for="occupation" class="block text-sm font-medium text-gray-700">Occupation</label>
+            <select name="occupation" id="occupation" class="mt-1 select select-bordered w-full">
+              <option value="">Select Occupation</option>
+              <option value="student" {% if form_data.occupation == 'student' %}selected{% endif %}>Student</option>
+              <option value="professional" {% if form_data.occupation == 'professional' %}selected{% endif %}>Professional</option>
+              <option value="business" {% if form_data.occupation == 'business' %}selected{% endif %}>Business Owner</option>
+              <option value="retired" {% if form_data.occupation == 'retired' %}selected{% endif %}>Retired</option>
+              <option value="unemployed" {% if form_data.occupation == 'unemployed' %}selected{% endif %}>Unemployed</option>
+              <option value="other" {% if form_data.occupation == 'other' %}selected{% endif %}>Other</option>
+            </select>
+          </div>
+
+          <div class="mt-4">
+            <label for="education" class="block text-sm font-medium text-gray-700">Education Level</label>
+            <select name="education" id="education" class="mt-1 select select-bordered w-full">
+              <option value="">Select Education</option>
+              <option value="high_school" {% if form_data.education == 'high_school' %}selected{% endif %}>High School</option>
+              <option value="diploma" {% if form_data.education == 'diploma' %}selected{% endif %}>Diploma</option>
+              <option value="bachelor" {% if form_data.education == 'bachelor' %}selected{% endif %}>Bachelor Degree</option>
+              <option value="master" {% if form_data.education == 'master' %}selected{% endif %}>Master Degree</option>
+              <option value="phd" {% if form_data.education == 'phd' %}selected{% endif %}>PhD</option>
+            </select>
+          </div>
+
+          <div class="mt-4">
+            <label for="income_range" class="block text-sm font-medium text-gray-700">Monthly Income Range</label>
+            <select name="income_range" id="income_range" class="mt-1 select select-bordered w-full">
+              <option value="">Select Income Range</option>
+              <option value="low" {% if form_data.income_range == 'low' %}selected{% endif %}>Below $2,000</option>
+              <option value="medium" {% if form_data.income_range == 'medium' %}selected{% endif %}>$2,000 - $5,000</option>
+              <option value="high" {% if form_data.income_range == 'high' %}selected{% endif %}>$5,000 - $10,000</option>
+              <option value="very_high" {% if form_data.income_range == 'very_high' %}selected{% endif %}>Above $10,000</option>
+            </select>
+          </div>
+
+          <div class="mt-4">
+            <label for="biography" class="block text-sm font-medium text-gray-700">Bio (Optional)</label>
+            <textarea name="biography" id="biography" rows="3" class="mt-1 textarea textarea-bordered w-full" placeholder="Tell us about yourself..."></textarea>
+          </div>
+
+          <div class="mt-4">
+            <label for="address" class="block text-sm font-medium text-gray-700">Address (Optional)</label>
+            <input type="text" name="address" id="address" class="mt-1 input input-bordered w-full" placeholder="123 Main St, Singapore">
+          </div>
+        </div>
+
+        <div>
+          <button type="submit" class="btn btn-primary w-full hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl bg-gradient-to-r from-blue-600 to-purple-600 border-none text-white font-semibold py-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            Create Account
+          </button>
+        </div>
+      </form>
+
+      <div class="mt-8">
+        <div class="mt-8">
+          <a href="{% url 'core:login' %}" class="btn btn-secondary w-full hover:bg-gray-100 hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg border-2 border-gray-300 text-gray-700 hover:text-gray-900">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+            </svg>
+            Sign in to existing account
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

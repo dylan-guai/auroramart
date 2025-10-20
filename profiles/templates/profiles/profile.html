@@ -1,0 +1,236 @@
+{% extends "core/base.html" %}
+
+{% block title %}
+My Profile | AuroraMart
+{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-4xl font-bold text-center mb-8">My Profile</h1>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Profile Information -->
+      <div class="lg:col-span-2 bg-base-100 shadow-xl p-8 rounded-lg">
+        <div class="flex items-center mb-6">
+          <div class="mr-6">
+            {% if profile.profile_picture %}
+              <img src="{{ profile.profile_picture.url }}" alt="{{ profile.user.username }}" class="w-24 h-24 rounded-full object-cover shadow-lg">
+            {% else %}
+              <div class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center shadow-lg">
+                <span class="text-2xl text-gray-500">{{ profile.user.username|first|upper }}</span>
+              </div>
+            {% endif %}
+          </div>
+          <div>
+            <h2 class="text-2xl font-semibold">{{ profile.user.username }}</h2>
+            <p class="text-gray-600">{{ profile.user.email }}</p>
+          </div>
+        </div>
+        
+        <h3 class="text-xl font-semibold mb-4">Personal Information</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+            <p class="text-lg">{{ profile.first_name|default:"Not provided" }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+            <p class="text-lg">{{ profile.last_name|default:"Not provided" }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+            <p class="text-lg">{{ profile.user.username }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            <p class="text-lg">{{ profile.user.email }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Age</label>
+            <p class="text-lg">{{ profile.age|default:"Not provided" }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+            <p class="text-lg">{{ profile.get_gender_display|default:"Not provided" }}</p>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Biography</label>
+          <p class="text-lg">{{ profile.biography|default:"No biography provided" }}</p>
+        </div>
+
+        <div class="mt-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+          <p class="text-lg">{{ profile.address|default:"No address provided" }}</p>
+        </div>
+
+        <div class="mt-8">
+          <a href="{% url 'profiles:edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+        </div>
+      </div>
+
+      <!-- Demographics & AI Information -->
+      <div class="bg-base-100 shadow-xl p-8 rounded-lg">
+        <h2 class="text-2xl font-semibold mb-6">AI Personalization</h2>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Occupation</label>
+            <p class="text-lg">{{ profile.get_occupation_display|default:"Not provided" }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Education</label>
+            <p class="text-lg">{{ profile.get_education_display|default:"Not provided" }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Income Range</label>
+            <p class="text-lg">{{ profile.get_income_range_display|default:"Not provided" }}</p>
+          </div>
+        </div>
+
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+          <h3 class="font-semibold text-blue-900 mb-2">Demographics Status</h3>
+          {% if profile.demographics_complete %}
+            <p class="text-green-600">✅ Complete</p>
+          {% else %}
+            <p class="text-orange-600">⚠️ Incomplete - Complete for better recommendations</p>
+          {% endif %}
+        </div>
+
+        <div class="mt-6">
+          <a href="{% url 'profiles:demographics_form' %}" class="btn btn-outline btn-sm">Update Demographics</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Information -->
+    <div class="mt-8 bg-base-100 shadow-xl p-8 rounded-lg">
+      <h2 class="text-2xl font-semibold mb-6">Account Information</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Member Since</label>
+          <p class="text-lg">{{ profile.user.date_joined|date:"F d, Y" }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Last Login</label>
+          <p class="text-lg">{{ profile.user.last_login|date:"F d, Y g:i A"|default:"Never" }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Profile Updated</label>
+          <p class="text-lg">{{ profile.updated_at|date:"F d, Y g:i A" }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Account Status</label>
+          <p class="text-lg">
+            {% if profile.user.is_active %}
+              <span class="text-green-600">Active</span>
+            {% else %}
+              <span class="text-red-600">Inactive</span>
+            {% endif %}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Orders -->
+    {% if recent_orders %}
+    <div class="mt-8 bg-base-100 shadow-xl p-8 rounded-lg">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold">Recent Orders</h2>
+        <a href="{% url 'profiles:order_history' %}" class="btn btn-outline btn-sm">View All Orders</a>
+      </div>
+      
+      <div class="space-y-4">
+        {% for order in recent_orders %}
+        <div class="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="font-semibold">Order #{{ order.order_number }}</h3>
+              <p class="text-sm text-gray-600">{{ order.created_at|date:"F d, Y" }}</p>
+              <p class="text-sm">Status: <span class="badge badge-{% if order.status == 'delivered' %}success{% elif order.status == 'shipped' %}info{% elif order.status == 'processing' %}warning{% elif order.status == 'confirmed' %}primary{% elif order.status == 'cancelled' %}error{% else %}error{% endif %}">{{ order.get_status_display }}</span></p>
+            </div>
+            <div class="text-right">
+              <p class="font-semibold">${{ order.total_amount }}</p>
+              <a href="{% url 'profiles:reorder' order.order_id %}" class="btn btn-sm btn-outline mt-2">Reorder</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Wishlist -->
+    {% if wishlist_items %}
+    <div class="mt-8 bg-base-100 shadow-xl p-8 rounded-lg">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold">Saved Items</h2>
+        <a href="{% url 'profiles:wishlist' %}" class="btn btn-outline btn-sm">View All</a>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for item in wishlist_items %}
+        <div class="card bg-base-100 shadow-md hover:shadow-lg transition-shadow">
+          <figure>
+            {% if item.product.images.exists %}
+              <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="w-full h-32 object-cover">
+            {% else %}
+              <div class="w-full h-32 bg-gray-200 flex items-center justify-center">
+                <span class="text-2xl">📦</span>
+              </div>
+            {% endif %}
+          </figure>
+          <div class="card-body p-4">
+            <h3 class="card-title text-sm">{{ item.product.name }}</h3>
+            <p class="text-lg font-bold text-primary">${{ item.product.current_price }}</p>
+            <div class="card-actions justify-end">
+              <a href="{% url 'item:product_detail' item.product.id %}" class="btn btn-sm btn-primary">View</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Actions -->
+    <div class="mt-8 bg-base-100 shadow-xl p-8 rounded-lg">
+      <h2 class="text-2xl font-semibold mb-6">Quick Actions</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <a href="{% url 'item:product_list' %}" class="btn btn-primary btn-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          Browse Products
+        </a>
+        
+        <a href="{% url 'checkout:cart_view' %}" class="btn btn-secondary btn-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          View Cart
+        </a>
+        
+        <a href="{% url 'profiles:wishlist' %}" class="btn btn-accent btn-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+          Wishlist
+        </a>
+        
+        <a href="{% url 'core:logout' %}" class="btn btn-outline btn-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Logout
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

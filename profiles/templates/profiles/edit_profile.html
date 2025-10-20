@@ -1,0 +1,45 @@
+{% extends "core/base.html" %}
+
+{% block title %}
+Edit Profile | AuroraMart
+{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-2xl mx-auto">
+    <h1 class="text-4xl font-bold text-center mb-8">Edit Profile</h1>
+    
+    <div class="bg-base-100 shadow-xl p-8 rounded-lg">
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+            <input type="text" name="first_name" id="first_name" value="{{ profile.first_name }}" class="input input-bordered w-full" required>
+          </div>
+          <div>
+            <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+            <input type="text" name="last_name" id="last_name" value="{{ profile.last_name }}" class="input input-bordered w-full" required>
+          </div>
+        </div>
+
+        <div>
+          <label for="biography" class="block text-sm font-medium text-gray-700 mb-2">Biography</label>
+          <textarea name="biography" id="biography" rows="4" class="textarea textarea-bordered w-full" placeholder="Tell us about yourself...">{{ profile.biography }}</textarea>
+        </div>
+
+        <div>
+          <label for="address" class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+          <input type="text" name="address" id="address" value="{{ profile.address }}" class="input input-bordered w-full" placeholder="123 Main St, Singapore">
+        </div>
+
+        <div class="flex space-x-4">
+          <button type="submit" class="btn btn-primary flex-1">Save Changes</button>
+          <a href="{% url 'profiles:profile' %}" class="btn btn-outline flex-1">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

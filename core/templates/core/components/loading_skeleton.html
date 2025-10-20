@@ -1,0 +1,93 @@
+<!-- Loading Skeleton Components -->
+<div class="skeleton-wrapper">
+  <!-- Product Card Skeleton -->
+  <div class="card-skeleton bg-white rounded-lg shadow-lg p-6 animate-pulse">
+    <div class="skeleton-image bg-gray-200 rounded-lg h-64 mb-4"></div>
+    <div class="skeleton-title bg-gray-200 rounded h-6 mb-2"></div>
+    <div class="skeleton-title bg-gray-200 rounded h-4 w-3/4 mb-4"></div>
+    <div class="skeleton-price bg-gray-200 rounded h-8 w-1/2 mb-4"></div>
+    <div class="skeleton-button bg-gray-200 rounded h-10 w-full"></div>
+  </div>
+  
+  <!-- Product List Skeleton -->
+  <div class="product-list-skeleton">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {% for i in "12345678" %}
+      <div class="card bg-white rounded-lg shadow-lg p-6 animate-pulse">
+        <div class="bg-gray-200 rounded-lg h-64 mb-4"></div>
+        <div class="bg-gray-200 rounded h-6 mb-2"></div>
+        <div class="bg-gray-200 rounded h-4 w-3/4 mb-4"></div>
+        <div class="bg-gray-200 rounded h-8 w-1/2 mb-4"></div>
+        <div class="bg-gray-200 rounded h-10 w-full"></div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  
+  <!-- Cart Item Skeleton -->
+  <div class="cart-item-skeleton bg-white rounded-lg shadow-lg p-6 animate-pulse">
+    <div class="flex items-center space-x-4">
+      <div class="bg-gray-200 rounded-lg w-16 h-16"></div>
+      <div class="flex-1">
+        <div class="bg-gray-200 rounded h-6 mb-2"></div>
+        <div class="bg-gray-200 rounded h-4 w-2/3"></div>
+      </div>
+      <div class="bg-gray-200 rounded h-8 w-20"></div>
+    </div>
+  </div>
+  
+  <!-- Profile Skeleton -->
+  <div class="profile-skeleton bg-white rounded-lg shadow-lg p-8 animate-pulse">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-gray-200 rounded h-6 mb-2"></div>
+      <div class="bg-gray-200 rounded h-6 mb-2"></div>
+      <div class="bg-gray-200 rounded h-6 mb-2"></div>
+      <div class="bg-gray-200 rounded h-6 mb-2"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .skeleton-wrapper {
+    opacity: 0.7;
+  }
+  
+  .card-skeleton,
+  .product-list-skeleton,
+  .cart-item-skeleton,
+  .profile-skeleton {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  
+  .skeleton-image {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  
+  .skeleton-title,
+  .skeleton-price,
+  .skeleton-button {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+</style>

@@ -1,0 +1,160 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}Change Price - {{ product.name }} | AuroraMart Admin{% endblock %}
+
+{% block page_title %}Change Price{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="text-sm breadcrumbs">
+    <ul>
+        <li><a href="{% url 'admin_panel:dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'admin_panel:price_history' %}">Price History</a></li>
+        <li>{{ product.name }}</li>
+        <li>Change Price</li>
+    </ul>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="card bg-white shadow-lg">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-tag mr-2"></i>
+                Change Price: {{ product.name }}
+            </h3>
+        </div>
+        <div class="card-body">
+            <!-- Product Info -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <div class="flex items-center space-x-4">
+                    {% if product.images.first %}
+                        <div class="avatar">
+                            <div class="w-16 h-16 rounded">
+                                <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div>
+                        <h4 class="font-bold text-lg">{{ product.name }}</h4>
+                        <p class="text-gray-600">{{ product.sku }}</p>
+                        <div class="flex space-x-4 mt-2">
+                            <span class="badge badge-outline">{{ product.category.name }}</span>
+                            <span class="badge badge-outline">{{ product.brand.name }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Current Prices -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-blue-50 rounded-lg p-4">
+                    <h5 class="font-semibold text-blue-800">Current Price</h5>
+                    <p class="text-2xl font-bold text-blue-900">${{ product.price }}</p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4">
+                    <h5 class="font-semibold text-green-800">Current Discount Price</h5>
+                    <p class="text-2xl font-bold text-green-900">
+                        {% if product.discount_price %}
+                            ${{ product.discount_price }}
+                        {% else %}
+                            <span class="text-gray-400">No discount</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Price Change Form -->
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-control">
+                        <label class="label" for="price">
+                            <span class="label-text font-medium">New Price *</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                            <input type="number" name="price" id="price" step="0.01" min="0" 
+                                   value="{{ product.price }}" class="input input-bordered w-full pl-8" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-control">
+                        <label class="label" for="discount_price">
+                            <span class="label-text font-medium">Discount Price</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                            <input type="number" name="discount_price" id="discount_price" step="0.01" min="0" 
+                                   value="{{ product.discount_price }}" class="input input-bordered w-full pl-8">
+                        </div>
+                        <label class="label">
+                            <span class="label-text-alt">Leave blank to remove discount</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-control">
+                    <label class="label" for="reason">
+                        <span class="label-text font-medium">Reason for Price Change</span>
+                    </label>
+                    <textarea name="reason" id="reason" rows="3" 
+                              class="textarea textarea-bordered" 
+                              placeholder="Enter the reason for this price change (optional)"></textarea>
+                </div>
+                
+                <!-- Price Preview -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-yellow-800 mb-2">Price Change Preview</h5>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <span class="text-sm text-gray-600">New Price:</span>
+                            <span id="preview-price" class="font-bold text-lg ml-2">${{ product.price }}</span>
+                        </div>
+                        <div>
+                            <span class="text-sm text-gray-600">New Discount:</span>
+                            <span id="preview-discount" class="font-bold text-lg ml-2">
+                                {% if product.discount_price %}
+                                    ${{ product.discount_price }}
+                                {% else %}
+                                    <span class="text-gray-400">No discount</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex justify-end space-x-4">
+                    <a href="{% url 'admin_panel:price_history' %}" class="btn btn-outline">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save mr-2"></i>
+                        Update Price
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const priceInput = document.getElementById('price');
+    const discountInput = document.getElementById('discount_price');
+    const previewPrice = document.getElementById('preview-price');
+    const previewDiscount = document.getElementById('preview-discount');
+    
+    function updatePreview() {
+        previewPrice.textContent = '$' + (priceInput.value || '0');
+        previewDiscount.textContent = discountInput.value ? '$' + discountInput.value : '<span class="text-gray-400">No discount</span>';
+    }
+    
+    priceInput.addEventListener('input', updatePreview);
+    discountInput.addEventListener('input', updatePreview);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "core/base.html" %}
+
+{% block title %}
+Order History | AuroraMart
+{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-6xl mx-auto">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-4xl font-bold">Order History</h1>
+      <a href="{% url 'profiles:profile' %}" class="btn btn-outline">Back to Profile</a>
+    </div>
+    
+    {% if orders %}
+    <div class="bg-base-100 shadow-xl rounded-lg overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="table w-full">
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+            <tr class="hover:bg-gray-50">
+              <td>
+                <div class="font-semibold">{{ order.order_number }}</div>
+              </td>
+              <td>
+                <div>{{ order.created_at|date:"M d, Y" }}</div>
+                <div class="text-sm text-gray-500">{{ order.created_at|time:"g:i A" }}</div>
+              </td>
+              <td>
+                <span class="badge badge-{% if order.status == 'delivered' %}success{% elif order.status == 'shipped' %}info{% elif order.status == 'processing' %}warning{% elif order.status == 'confirmed' %}primary{% elif order.status == 'cancelled' %}error{% else %}error{% endif %}">
+                  {{ order.get_status_display }}
+                </span>
+              </td>
+              <td>
+                <div class="text-sm">
+                  {% for item in order.order_items.all %}
+                    <div>{{ item.quantity }}x {{ item.product.name }}</div>
+                  {% endfor %}
+                </div>
+              </td>
+              <td>
+                <div class="font-semibold">${{ order.total_amount }}</div>
+              </td>
+              <td>
+                <div class="flex space-x-2">
+                  <a href="{% url 'profiles:order_tracking' order.order_id %}" class="btn btn-sm btn-primary">Track</a>
+                  <a href="{% url 'profiles:reorder' order.order_id %}" class="btn btn-sm btn-outline">Reorder</a>
+                  {% if order.status == 'delivered' %}
+                    <button class="btn btn-sm btn-secondary" onclick="reviewOrder({{ order.order_id }})">Review</button>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Pagination -->
+      {% if orders.has_other_pages %}
+      <div class="flex justify-center p-6">
+        <div class="join">
+          {% if orders.has_previous %}
+            <a href="?page={{ orders.previous_page_number }}" class="join-item btn">«</a>
+          {% endif %}
+
+          <button class="join-item btn">Page {{ orders.number }} of {{ orders.paginator.num_pages }}</button>
+
+          {% if orders.has_next %}
+            <a href="?page={{ orders.next_page_number }}" class="join-item btn">»</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% else %}
+    <div class="text-center py-12 bg-base-100 shadow-xl rounded-lg">
+      <div class="text-6xl mb-4">📦</div>
+      <h2 class="text-2xl font-bold mb-4">No orders yet</h2>
+      <p class="text-gray-600 mb-6">Start shopping to see your order history here!</p>
+      <a href="{% url 'item:product_list' %}" class="btn btn-primary btn-lg">Browse Products</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+function reviewOrder(orderId) {
+  // TODO: Implement order review functionality
+  alert('Review functionality coming soon!');
+}
+</script>
+{% endblock %}

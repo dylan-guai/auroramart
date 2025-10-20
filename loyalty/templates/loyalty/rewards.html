@@ -1,0 +1,186 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Loyalty Rewards - AuroraMart{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reward-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .reward-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    .points-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <div class="mb-8">
+                <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                    </svg>
+                </div>
+                <h1 class="text-5xl font-bold mb-4">Loyalty Rewards</h1>
+                <p class="text-xl opacity-90 max-w-2xl mx-auto">
+                    Redeem your points for amazing rewards and exclusive benefits!
+                </p>
+            </div>
+            
+            <!-- Points Balance -->
+            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 max-w-md mx-auto">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold">{{ loyalty_account.points_balance }}</h3>
+                        <p class="opacity-80">Points Available</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm opacity-80">Current Tier</p>
+                        <p class="text-lg font-bold">{{ loyalty_account.current_tier.display_name|default:"No Tier" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-wrap gap-4 mb-8">
+            <a href="{% url 'loyalty:dashboard' %}" class="btn btn-outline">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                </svg>
+                Dashboard
+            </a>
+            <a href="{% url 'loyalty:rewards' %}" class="btn btn-primary">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                </svg>
+                Rewards
+            </a>
+            <a href="{% url 'loyalty:transactions' %}" class="btn btn-outline">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                Transactions
+            </a>
+            <a href="{% url 'loyalty:notifications' %}" class="btn btn-outline">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM4.828 7l2.586 2.586a2 2 0 002.828 0L12.828 7H4.828z"></path>
+                </svg>
+                Notifications
+            </a>
+            <a href="{% url 'loyalty:tiers' %}" class="btn btn-outline">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                </svg>
+                Tiers
+            </a>
+        </div>
+
+        <!-- Rewards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for reward in rewards %}
+            <div class="reward-card card bg-white shadow-lg">
+                <div class="card-body p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <h3 class="card-title text-lg font-bold">{{ reward.name }}</h3>
+                            <p class="text-sm text-gray-600 mt-2">{{ reward.description }}</p>
+                        </div>
+                        <div class="points-badge px-3 py-1 rounded-full text-sm font-bold">
+                            {{ reward.points_cost }} pts
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2 mb-4">
+                        {% if reward.reward_type == 'discount' %}
+                            {% if reward.discount_percentage %}
+                                <div class="flex items-center text-green-600">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                    </svg>
+                                    {{ reward.discount_percentage }}% Off
+                                </div>
+                            {% elif reward.discount_amount %}
+                                <div class="flex items-center text-green-600">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                    </svg>
+                                    ${{ reward.discount_amount }} Off
+                                </div>
+                            {% endif %}
+                        {% elif reward.reward_type == 'free_shipping' %}
+                            <div class="flex items-center text-blue-600">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                </svg>
+                                Free Shipping
+                            </div>
+                        {% elif reward.reward_type == 'free_product' %}
+                            <div class="flex items-center text-purple-600">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                </svg>
+                                Free Product
+                            </div>
+                        {% elif reward.reward_type == 'points_bonus' %}
+                            <div class="flex items-center text-orange-600">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                Bonus Points
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-500">
+                            Valid until: {{ reward.valid_until|date:"M d, Y" }}
+                        </div>
+                        <div class="flex gap-2">
+                            {% if loyalty_account.points_balance >= reward.points_cost %}
+                                <form method="post" action="{% url 'loyalty:redeem_reward' reward.id %}" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary btn-sm" 
+                                            onclick="return confirm('Redeem {{ reward.name }} for {{ reward.points_cost }} points?')">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        Redeem
+                                    </button>
+                                </form>
+                            {% else %}
+                                <button class="btn btn-disabled btn-sm" disabled>
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                    </svg>
+                                    Need {{ reward.points_cost|add:loyalty_account.points_balance|add:"-"|add:reward.points_cost }} more points
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-12">
+                <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                </svg>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">No Rewards Available</h3>
+                <p class="text-gray-500">Check back later for new rewards!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

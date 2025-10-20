@@ -1,0 +1,180 @@
+{% extends "core/base.html" %}
+
+{% block title %}
+Checkout | AuroraMart
+{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-4xl font-bold text-center mb-8">Checkout</h1>
+    
+    {% if cart.cart_items.exists %}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Order Summary -->
+      <div class="bg-base-100 shadow-xl p-8 rounded-lg">
+        <h2 class="text-2xl font-semibold mb-6">Order Summary</h2>
+        
+        <div class="space-y-4">
+          {% for item in cart.cart_items.all %}
+          <div class="flex items-center justify-between border-b pb-4">
+            <div class="flex items-center space-x-3">
+              {% if item.product.images.exists %}
+                <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="w-12 h-12 object-cover rounded">
+              {% else %}
+                <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
+                  <span class="text-lg">📦</span>
+                </div>
+              {% endif %}
+              <div>
+                <h3 class="font-semibold">{{ item.product.name }}</h3>
+                <p class="text-sm text-gray-600">Qty: {{ item.quantity }}</p>
+              </div>
+            </div>
+            <span class="font-semibold">${{ item.total_price|floatformat:2 }}</span>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="mt-6 border-t pt-4">
+          <div class="space-y-2">
+            <div class="flex justify-between">
+              <span>Subtotal:</span>
+              <span>${{ cart.subtotal|floatformat:2 }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Shipping:</span>
+              <span>${{ cart.shipping_cost|floatformat:2 }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Tax:</span>
+              <span>${{ cart.tax_amount|floatformat:2 }}</span>
+            </div>
+            {% if cart.discount_amount > 0 %}
+            <div class="flex justify-between text-green-600">
+              <span>Discount:</span>
+              <span>-${{ cart.discount_amount|floatformat:2 }}</span>
+            </div>
+            {% endif %}
+          </div>
+          <div class="flex justify-between text-lg font-semibold border-t pt-2 mt-2">
+            <span>Total:</span>
+            <span>${{ cart.total_price|floatformat:2 }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Checkout Form -->
+      <div class="bg-base-100 shadow-xl p-8 rounded-lg">
+        <h2 class="text-2xl font-semibold mb-6">Shipping Information</h2>
+        
+        <form method="post" class="space-y-6">
+          {% csrf_token %}
+          
+          <div>
+            <label for="shipping_name" class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+            <input type="text" name="shipping_name" id="shipping_name" value="{% if user.profile %}{{ user.profile.first_name }} {{ user.profile.last_name }}{% endif %}" class="input input-bordered w-full" required>
+          </div>
+
+          <div>
+            <label for="shipping_address" class="block text-sm font-medium text-gray-700 mb-2">Address *</label>
+            <textarea name="shipping_address" id="shipping_address" rows="3" class="textarea textarea-bordered w-full" required>{% if user.profile %}{{ user.profile.address }}{% endif %}</textarea>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="shipping_city" class="block text-sm font-medium text-gray-700 mb-2">City *</label>
+              <input type="text" name="shipping_city" id="shipping_city" class="input input-bordered w-full" required>
+            </div>
+            <div>
+              <label for="shipping_state" class="block text-sm font-medium text-gray-700 mb-2">State *</label>
+              <input type="text" name="shipping_state" id="shipping_state" class="input input-bordered w-full" required>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="shipping_zip" class="block text-sm font-medium text-gray-700 mb-2">ZIP Code *</label>
+              <input type="text" name="shipping_zip" id="shipping_zip" class="input input-bordered w-full" required>
+            </div>
+            <div>
+              <label for="shipping_country" class="block text-sm font-medium text-gray-700 mb-2">Country *</label>
+              <select name="shipping_country" id="shipping_country" class="select select-bordered w-full" required>
+                <option value="">Select Country</option>
+                <option value="AU">Australia</option>
+                <option value="BN">Brunei</option>
+                <option value="KH">Cambodia</option>
+                <option value="CN">China</option>
+                <option value="HK">Hong Kong</option>
+                <option value="IN">India</option>
+                <option value="ID">Indonesia</option>
+                <option value="JP">Japan</option>
+                <option value="LA">Laos</option>
+                <option value="MY">Malaysia</option>
+                <option value="MN">Mongolia</option>
+                <option value="MM">Myanmar</option>
+                <option value="NZ">New Zealand</option>
+                <option value="PH">Philippines</option>
+                <option value="SG">Singapore</option>
+                <option value="KR">South Korea</option>
+                <option value="LK">Sri Lanka</option>
+                <option value="TW">Taiwan</option>
+                <option value="TH">Thailand</option>
+                <option value="VN">Vietnam</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label for="shipping_phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+            <input type="tel" name="shipping_phone" id="shipping_phone" class="input input-bordered w-full">
+          </div>
+
+          <!-- Payment Method -->
+          <div class="mt-8">
+            <h3 class="text-lg font-semibold mb-4">Payment Method *</h3>
+            <div class="space-y-3">
+              <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                <input type="radio" name="payment_method" value="credit_card" class="radio radio-primary mr-3" required>
+                <div class="flex items-center">
+                  <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                  </svg>
+                  <span class="font-medium">Credit Card</span>
+                </div>
+              </label>
+              
+              <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                <input type="radio" name="payment_method" value="paypal" class="radio radio-primary mr-3" required>
+                <div class="flex items-center">
+                  <svg class="w-6 h-6 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.105-.633c-.73-3.627-3.36-5.13-6.864-5.13H6.008c-.524 0-.968.382-1.05.9L2.47 21.337h4.606l1.12-7.106c.082-.518.526-.9 1.05-.9h2.19c3.504 0 6.134-1.503 6.864-5.13.023-.143.047-.288.077-.437z"/>
+                  </svg>
+                  <span class="font-medium">PayPal</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="mt-8">
+            <button type="submit" class="btn btn-primary w-full btn-lg">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+              </svg>
+              Complete Order
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% else %}
+    <div class="text-center py-12 bg-base-100 shadow-xl rounded-lg">
+      <div class="text-6xl mb-4">🛒</div>
+      <h2 class="text-2xl font-bold mb-4">Your cart is empty</h2>
+      <p class="text-gray-600 mb-6">Add some products to checkout!</p>
+      <a href="{% url 'item:product_list' %}" class="btn btn-primary btn-lg">Browse Products</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

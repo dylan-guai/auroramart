@@ -1,0 +1,317 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}Order Detail - {{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Order {{ order.order_number }}</h1>
+            <p class="text-gray-600 mt-2">Ordered on {{ order.created_at|date:"F d, Y" }} at {{ order.created_at|time:"g:i A" }}</p>
+        </div>
+        <div class="flex space-x-4">
+            <a href="{% url 'admin_panel:order_management' %}" class="btn btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Orders
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Order Information -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Order Details -->
+            <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Order Details</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Order Number</label>
+                        <p class="mt-1 font-mono">{{ order.order_number }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Order Date</label>
+                        <p class="mt-1">{{ order.created_at|date:"M d, Y" }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Status</label>
+                        <p class="mt-1">
+                            <span class="badge badge-{% if order.status == 'delivered' %}success{% elif order.status == 'shipped' %}info{% elif order.status == 'processing' %}warning{% elif order.status == 'confirmed' %}primary{% elif order.status == 'cancelled' %}error{% else %}error{% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Payment Status</label>
+                        <p class="mt-1">
+                            <span class="badge badge-{% if order.payment_status == 'paid' %}success{% elif order.payment_status == 'refunded' %}warning{% else %}error{% endif %}">
+                                {{ order.get_payment_status_display }}
+                            </span>
+                        </p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Total Amount</label>
+                        <p class="mt-1 font-semibold text-lg">${{ order.total_amount|floatformat:2 }}</p>
+                    </div>
+                    {% if order.completed_at %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Completed At</label>
+                        <p class="mt-1">{{ order.completed_at|date:"M d, Y" }} {{ order.completed_at|time:"g:i A" }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Customer Information -->
+            <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Customer Information</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Name</label>
+                        <p class="mt-1">{{ order.user.get_full_name|default:order.user.username }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Email</label>
+                        <p class="mt-1">{{ order.user.email }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Username</label>
+                        <p class="mt-1">{{ order.user.username }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Customer Since</label>
+                        <p class="mt-1">{{ order.user.date_joined|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shipping Information -->
+            <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Shipping Information</h2>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Name</label>
+                        <p class="mt-1">{{ order.shipping_name }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Address</label>
+                        <p class="mt-1">{{ order.shipping_address }}</p>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">City</label>
+                            <p class="mt-1">{{ order.shipping_city }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">State</label>
+                            <p class="mt-1">{{ order.shipping_state }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">ZIP</label>
+                            <p class="mt-1">{{ order.shipping_zip }}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Country</label>
+                            <p class="mt-1">{{ order.shipping_country }}</p>
+                        </div>
+                        {% if order.shipping_phone %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Phone</label>
+                            <p class="mt-1">{{ order.shipping_phone }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Order Items</h2>
+                <div class="overflow-x-auto">
+                    <table class="table w-full">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>SKU</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order_items %}
+                            <tr>
+                                <td>
+                                    <div class="flex items-center space-x-3">
+                                        {% if item.product.images.exists %}
+                                            <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="w-12 h-12 object-cover rounded">
+                                        {% else %}
+                                            <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
+                                                <span class="text-lg">📦</span>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <div class="font-medium">{{ item.product.name }}</div>
+                                            <div class="text-sm text-gray-500">{{ item.product.short_description|truncatechars:50 }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="font-mono text-sm">{{ item.product.sku }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>${{ item.price_at_purchase|floatformat:2 }}</td>
+                                <td class="font-semibold">${{ item.total_price|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="border-t-2">
+                                <td colspan="4" class="text-right font-semibold">Subtotal:</td>
+                                <td class="font-semibold">${{ order.subtotal|floatformat:2 }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-right">Tax:</td>
+                                <td>${{ order.tax_amount|floatformat:2 }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-right">Shipping:</td>
+                                <td>${{ order.shipping_cost|floatformat:2 }}</td>
+                            </tr>
+                            {% if order.discount_amount > 0 %}
+                            <tr>
+                                <td colspan="4" class="text-right">Discount:</td>
+                                <td class="text-green-600">-${{ order.discount_amount|floatformat:2 }}</td>
+                            </tr>
+                            {% endif %}
+                            <tr class="border-t-2">
+                                <td colspan="4" class="text-right font-semibold text-lg">Total:</td>
+                                <td class="font-semibold text-lg">${{ order.total_amount|floatformat:2 }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Status Management -->
+            <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Update Status</h2>
+                
+                <!-- Order Status -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Order Status</label>
+                    <form method="POST" action="{% url 'admin_panel:update_order_status' order.order_id %}">
+                        {% csrf_token %}
+                        <div class="flex space-x-2">
+                            <select name="status" class="select select-bordered flex-1">
+                                {% for value, label in status_choices %}
+                                    <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-primary">Update</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Payment Status -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Payment Status</label>
+                    <form method="POST" action="{% url 'admin_panel:update_payment_status' order.order_id %}">
+                        {% csrf_token %}
+                        <div class="flex space-x-2">
+                            <select name="payment_status" class="select select-bordered flex-1">
+                                {% for value, label in payment_status_choices %}
+                                    <option value="{{ value }}" {% if order.payment_status == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-primary">Update</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="space-y-2">
+                    <a href="{% url 'admin_panel:customer_detail' order.user.profile.id %}" class="btn btn-outline w-full">View Customer Profile</a>
+                    {% if order.return_request %}
+                        <a href="{% url 'admin_panel:return_detail' order.return_request.id %}" class="btn btn-outline w-full">View Return Request</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Order Timeline -->
+            <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Order Timeline</h2>
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                        <div>
+                            <p class="text-sm font-medium">Order Placed</p>
+                            <p class="text-xs text-gray-500">{{ order.created_at|date:"M d, Y g:i A" }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if order.status != 'pending' %}
+                    <div class="flex items-center space-x-3">
+                        <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <div>
+                            <p class="text-sm font-medium">Order Confirmed</p>
+                            <p class="text-xs text-gray-500">{{ order.updated_at|date:"M d, Y g:i A" }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if order.status in 'processing,shipped,delivered' %}
+                    <div class="flex items-center space-x-3">
+                        <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
+                        <div>
+                            <p class="text-sm font-medium">Processing</p>
+                            <p class="text-xs text-gray-500">{{ order.updated_at|date:"M d, Y g:i A" }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if order.status in 'shipped,delivered' %}
+                    <div class="flex items-center space-x-3">
+                        <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                        <div>
+                            <p class="text-sm font-medium">Shipped</p>
+                            <p class="text-xs text-gray-500">{{ order.updated_at|date:"M d, Y g:i A" }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if order.status == 'delivered' %}
+                    <div class="flex items-center space-x-3">
+                        <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <div>
+                            <p class="text-sm font-medium">Delivered</p>
+                            <p class="text-xs text-gray-500">{{ order.completed_at|date:"M d, Y g:i A" }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            {% if order_logs %}
+            <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Recent Activity</h2>
+                <div class="space-y-3">
+                    {% for log in order_logs %}
+                    <div class="border-l-2 border-gray-200 pl-3">
+                        <p class="text-sm font-medium">{{ log.description }}</p>
+                        <p class="text-xs text-gray-500">{{ log.timestamp|date:"M d, Y g:i A" }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,192 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}Audit Logs | AuroraMart Admin{% endblock %}
+
+{% block page_title %}Audit Logs{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="text-sm breadcrumbs">
+    <ul>
+        <li><a href="{% url 'admin_panel:dashboard' %}">Dashboard</a></li>
+        <li>Audit Logs</li>
+    </ul>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Filters -->
+    <div class="card bg-white shadow-lg">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-filter mr-2"></i>
+                Filter Logs
+            </h3>
+        </div>
+        <div class="card-body">
+            <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="form-control">
+                    <label class="label" for="user">
+                        <span class="label-text">User</span>
+                    </label>
+                    <input type="text" name="user" id="user" value="{{ filters.user }}" 
+                           class="input input-bordered" placeholder="Search by username">
+                </div>
+                
+                <div class="form-control">
+                    <label class="label" for="action">
+                        <span class="label-text">Action</span>
+                    </label>
+                    <select name="action" id="action" class="select select-bordered">
+                        <option value="">All Actions</option>
+                        {% for action_value, action_label in action_choices %}
+                            <option value="{{ action_value }}" {% if filters.action == action_value %}selected{% endif %}>
+                                {{ action_label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-control">
+                    <label class="label" for="date_from">
+                        <span class="label-text">From Date</span>
+                    </label>
+                    <input type="date" name="date_from" id="date_from" value="{{ filters.date_from }}" 
+                           class="input input-bordered">
+                </div>
+                
+                <div class="form-control">
+                    <label class="label" for="date_to">
+                        <span class="label-text">To Date</span>
+                    </label>
+                    <input type="date" name="date_to" id="date_to" value="{{ filters.date_to }}" 
+                           class="input input-bordered">
+                </div>
+                
+                <div class="form-control md:col-span-4">
+                    <div class="flex space-x-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search mr-2"></i>
+                            Filter
+                        </button>
+                        <a href="{% url 'admin_panel:audit_logs' %}" class="btn btn-outline">
+                            <i class="fas fa-times mr-2"></i>
+                            Clear
+                        </a>
+                        <a href="{% url 'admin_panel:audit_logs_export' %}?{{ request.GET.urlencode }}" class="btn btn-success">
+                            <i class="fas fa-download mr-2"></i>
+                            Export CSV
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Audit Logs Table -->
+    <div class="card bg-white shadow-lg">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-history mr-2"></i>
+                Audit Logs
+                <span class="badge badge-primary">{{ page_obj.paginator.count }} total</span>
+            </h3>
+        </div>
+        <div class="card-body p-0">
+            {% if page_obj %}
+                <div class="overflow-x-auto">
+                    <table class="table table-zebra w-full">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>Description</th>
+                                <th>IP Address</th>
+                                <th>User Agent</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in page_obj %}
+                                <tr>
+                                    <td>
+                                        <div class="text-sm">
+                                            {{ log.timestamp|date:"M d, Y" }}
+                                            <br>
+                                            <span class="text-gray-500">{{ log.timestamp|time:"H:i:s" }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if log.user %}
+                                            <div class="flex items-center space-x-2">
+                                                <div class="avatar placeholder">
+                                                    <div class="bg-neutral text-neutral-content rounded-full w-8">
+                                                        <span class="text-xs">{{ log.user.username|first|upper }}</span>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div class="font-medium">{{ log.user.username }}</div>
+                                                    <div class="text-sm text-gray-500">{{ log.user.get_full_name }}</div>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-gray-500">System</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-outline">{{ log.get_action_display }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="max-w-xs truncate" title="{{ log.description }}">
+                                            {{ log.description }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-sm font-mono">{{ log.ip_address|default:"-" }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="max-w-xs truncate text-sm" title="{{ log.user_agent }}">
+                                            {{ log.user_agent|default:"-" }}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                {% if page_obj.has_other_pages %}
+                    <div class="flex justify-center p-4">
+                        <div class="btn-group">
+                            {% if page_obj.has_previous %}
+                                <a href="?page=1{% if request.GET.user %}&user={{ request.GET.user }}{% endif %}{% if request.GET.action %}&action={{ request.GET.action }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" 
+                                   class="btn btn-sm">First</a>
+                                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.user %}&user={{ request.GET.user }}{% endif %}{% if request.GET.action %}&action={{ request.GET.action }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" 
+                                   class="btn btn-sm">Previous</a>
+                            {% endif %}
+                            
+                            <span class="btn btn-sm btn-active">
+                                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                            </span>
+                            
+                            {% if page_obj.has_next %}
+                                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.user %}&user={{ request.GET.user }}{% endif %}{% if request.GET.action %}&action={{ request.GET.action }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" 
+                                   class="btn btn-sm">Next</a>
+                                <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.user %}&user={{ request.GET.user }}{% endif %}{% if request.GET.action %}&action={{ request.GET.action }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" 
+                                   class="btn btn-sm">Last</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-8">
+                    <i class="fas fa-history text-4xl text-gray-300 mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No audit logs found</h3>
+                    <p class="text-gray-500">No audit logs match your current filters.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

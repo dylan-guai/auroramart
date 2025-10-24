@@ -19,6 +19,7 @@ AuroraMart is a comprehensive, production-ready e-commerce platform built with D
 ## 🏗️ Architecture Overview
 
 ### Core Technologies
+
 - **Backend**: Django 5.2.7
 - **Database**: SQLite (development), PostgreSQL ready
 - **Frontend**: HTML5, CSS3, JavaScript, TailwindCSS
@@ -27,6 +28,7 @@ AuroraMart is a comprehensive, production-ready e-commerce platform built with D
 - **File Storage**: Django FileField/ImageField
 
 ### Application Structure
+
 ```
 auroramart/
 ├── auroramart/          # Main project configuration
@@ -48,6 +50,7 @@ auroramart/
 ### Customer-Facing Features
 
 #### 1. User Registration & Authentication
+
 - **Location**: `core/views.py`, `core/forms.py`
 - **Models**: `User` (Django built-in)
 - **Templates**: `core/templates/core/register.html`, `login.html`
@@ -59,6 +62,7 @@ auroramart/
   - Form validation with error handling
 
 #### 2. Customer Profile Management
+
 - **Location**: `profiles/views.py`, `profiles/models.py`
 - **Models**: `Profile`, `CustomerPreference`, `Wishlist`
 - **Templates**: `profiles/templates/profiles/profile.html`
@@ -71,6 +75,7 @@ auroramart/
   - Customer segmentation data
 
 #### 3. Product Catalog & Browsing
+
 - **Location**: `item/views.py`, `item/models.py`
 - **Models**: `Product`, `Category`, `Subcategory`, `Brand`, `ProductImage`, `ProductSpecification`, `ProductReview`
 - **Templates**: `item/templates/item/product_list.html`, `product_detail.html`
@@ -83,6 +88,7 @@ auroramart/
   - Brand management
 
 #### 4. Shopping Cart & Checkout
+
 - **Location**: `checkout/views.py`, `checkout/models.py`
 - **Models**: `Cart`, `CartItem`, `CartDiscount`, `Order`, `OrderItem`
 - **Templates**: `checkout/templates/checkout/cart.html`, `checkout.html`
@@ -95,6 +101,7 @@ auroramart/
   - Tax and shipping calculations
 
 #### 5. Loyalty Program
+
 - **Location**: `loyalty/views.py`, `loyalty/models.py`
 - **Models**: `LoyaltyAccount`, `LoyaltyTier`, `LoyaltyReward`, `LoyaltyTransaction`
 - **Templates**: `loyalty/templates/loyalty/dashboard.html`
@@ -106,6 +113,7 @@ auroramart/
   - Tier progression tracking
 
 #### 6. Search Functionality
+
 - **Location**: `search/views.py`, `search/models.py`
 - **Models**: `SearchFilter`, `SearchHistory`, `ProductView`, `SearchSuggestion`
 - **Templates**: `search/templates/search/results.html`
@@ -119,6 +127,7 @@ auroramart/
 ### Admin Panel Features
 
 #### 1. Admin Authentication & Security
+
 - **Location**: `admin_panel/views.py`, `admin_panel/models.py`
 - **Models**: `AdminUser`, `AdminRole`, `SessionSecurity`, `AuditLog`, `LoginAttempt`
 - **Templates**: `admin_panel/templates/admin_panel/login.html`
@@ -130,6 +139,7 @@ auroramart/
   - Password reset functionality
 
 #### 2. Admin Dashboard
+
 - **Location**: `admin_panel/views.py`
 - **Templates**: `admin_panel/templates/admin_panel/dashboard.html`
 - **Features**:
@@ -140,6 +150,7 @@ auroramart/
   - Navigation to all admin features
 
 #### 3. Customer Management
+
 - **Location**: `admin_panel/customer_views.py`
 - **Templates**: `admin_panel/templates/admin_panel/customers/`
 - **Features**:
@@ -150,6 +161,7 @@ auroramart/
   - Customer segmentation
 
 #### 4. Product & Inventory Management
+
 - **Location**: `admin_panel/inventory_views.py`
 - **Templates**: `admin_panel/templates/admin_panel/inventory/`
 - **Features**:
@@ -161,6 +173,7 @@ auroramart/
   - Product image management
 
 #### 5. Order Management
+
 - **Location**: `admin_panel/order_views.py`
 - **Templates**: `admin_panel/templates/admin_panel/orders/`
 - **Features**:
@@ -171,6 +184,7 @@ auroramart/
   - Customer communication
 
 #### 6. Analytics Dashboard
+
 - **Location**: `analytics/views.py`, `admin_panel/views.py`
 - **Models**: `BusinessMetrics`, `CustomerAnalytics`, `ProductAnalytics`, `MarketingAnalytics`, `AIPerformanceMetrics`
 - **Templates**: `analytics/templates/analytics/dashboard.html`
@@ -183,6 +197,7 @@ auroramart/
   - AI/ML performance tracking
 
 #### 7. Loyalty Program Management
+
 - **Location**: `admin_panel/views.py`
 - **Templates**: `admin_panel/templates/admin_panel/loyalty_management.html`
 - **Features**:
@@ -195,6 +210,7 @@ auroramart/
 ### AI/ML Integration
 
 #### 1. Machine Learning Service
+
 - **Location**: `core/ml_service.py`
 - **Models**: Decision Tree Classifier, Association Rules Mining
 - **Features**:
@@ -205,6 +221,7 @@ auroramart/
   - Model persistence and loading
 
 #### 2. AI-Powered Features
+
 - **Personalized Recommendations**: Based on user demographics and behavior
 - **Category Prediction**: ML model predicts preferred categories for new users
 - **Product Associations**: Association rules mining for cross-selling
@@ -213,6 +230,7 @@ auroramart/
 ## 🔐 Security & Access Control
 
 ### Security Architecture
+
 - **Admin/Customer Separation**: Complete separation with no overlapping accounts
 - **Role-Based Access**: 6 distinct admin roles with specific permissions
 - **Session Security**: Secure session management with expiration
@@ -220,6 +238,7 @@ auroramart/
 - **Input Validation**: Form validation and sanitization
 
 ### Access Control Decorators
+
 - `@admin_required`: Restricts access to admin users only
 - `@role_required(['role1', 'role2'])`: Restricts access to specific roles
 - `@customer_required`: Prevents admin users from accessing customer features
@@ -227,6 +246,7 @@ auroramart/
 ## 📊 Database Schema
 
 ### Core Models
+
 ```python
 # User Management
 User (Django built-in)
@@ -264,6 +284,7 @@ AIPerformanceMetrics (analytics.models)
 ```
 
 ### Database Relationships
+
 - **88 total relationships** across all models
 - **Foreign key constraints** properly implemented
 - **Data integrity** maintained through Django ORM
@@ -272,11 +293,13 @@ AIPerformanceMetrics (analytics.models)
 ## 🚀 Installation & Setup
 
 ### Prerequisites
+
 - Python 3.13+
 - Django 5.2.7
 - Required packages (see requirements.txt)
 
 ### Installation Steps
+
 ```bash
 # Clone the repository
 git clone <repository-url>
@@ -303,6 +326,7 @@ python manage.py runserver
 ```
 
 ### Environment Configuration
+
 ```python
 # settings.py key configurations
 DEBUG = True  # Set to False in production
@@ -322,7 +346,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 ### Customer User Stories
 
 #### 1. New Customer Registration
+
 **As a new customer**, I want to create an account so that I can:
+
 - Save my personal information
 - Track my orders
 - Access loyalty rewards
@@ -331,7 +357,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 **Implementation**: `core/views.register`, `profiles/signals.py`
 
 #### 2. Product Discovery
+
 **As a customer**, I want to browse products so that I can:
+
 - Find items I need
 - Compare different options
 - Read reviews from other customers
@@ -340,7 +368,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 **Implementation**: `item/views.product_list`, `item/views.product_detail`
 
 #### 3. Shopping Cart Management
+
 **As a customer**, I want to manage my cart so that I can:
+
 - Add/remove items
 - Update quantities
 - Apply loyalty discounts
@@ -349,7 +379,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 **Implementation**: `checkout/views.cart_view`, `checkout/models.Cart`
 
 #### 4. Order Placement
+
 **As a customer**, I want to place orders so that I can:
+
 - Complete my purchase
 - Choose shipping options
 - Track my order status
@@ -358,7 +390,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 **Implementation**: `checkout/views.checkout`, `checkout/models.Order`
 
 #### 5. Loyalty Program Participation
+
 **As a customer**, I want to earn and redeem loyalty points so that I can:
+
 - Get discounts on future purchases
 - Progress through loyalty tiers
 - Access exclusive rewards
@@ -369,7 +403,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 ### Admin User Stories
 
 #### 1. Admin Authentication
+
 **As an admin**, I want to securely log in so that I can:
+
 - Access admin-only features
 - Maintain session security
 - Have my activities logged
@@ -378,7 +414,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 **Implementation**: `admin_panel/views.admin_login`, `admin_panel/models.SessionSecurity`
 
 #### 2. Customer Management
+
 **As an admin**, I want to manage customers so that I can:
+
 - View customer profiles
 - Track customer orders
 - Analyze customer behavior
@@ -387,7 +425,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 **Implementation**: `admin_panel/customer_views`, `admin_panel/templates/admin_panel/customers/`
 
 #### 3. Product Management
+
 **As an admin**, I want to manage products so that I can:
+
 - Add/edit/delete products
 - Manage inventory levels
 - Organize categories and brands
@@ -396,7 +436,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 **Implementation**: `admin_panel/inventory_views`, `admin_panel/templates/admin_panel/inventory/`
 
 #### 4. Order Processing
+
 **As an admin**, I want to process orders so that I can:
+
 - Update order statuses
 - Handle returns and refunds
 - Track order fulfillment
@@ -405,7 +447,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 **Implementation**: `admin_panel/order_views`, `admin_panel/templates/admin_panel/orders/`
 
 #### 5. Analytics & Reporting
+
 **As an admin**, I want to view analytics so that I can:
+
 - Monitor business performance
 - Analyze customer behavior
 - Track product performance
@@ -414,7 +458,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 **Implementation**: `analytics/views.analytics_dashboard`, `analytics/models`
 
 #### 6. Loyalty Program Management
+
 **As an admin**, I want to manage the loyalty program so that I can:
+
 - Configure loyalty tiers
 - Create and manage rewards
 - Monitor program performance
@@ -425,30 +471,35 @@ MEDIA_ROOT = BASE_DIR / 'media'
 ## 🔧 Technical Implementation Details
 
 ### URL Routing
+
 - **361 total URL patterns**
 - **Modular URL configuration** per app
 - **Namespace-based routing** for organization
 - **Parameter-based routing** for dynamic content
 
 ### View Architecture
+
 - **79 total view functions**
 - **Class-based and function-based views**
 - **Decorator-based access control**
 - **AJAX support** for dynamic updates
 
 ### Template System
+
 - **78 total templates**
 - **Template inheritance** with base templates
 - **Context processors** for global data
 - **Template tags and filters** for custom functionality
 
 ### Form Handling
+
 - **7 total forms**
 - **Django form validation**
 - **Custom form widgets**
 - **AJAX form submission**
 
 ### Database Optimization
+
 - **select_related** for foreign key optimization
 - **prefetch_related** for many-to-many relationships
 - **Database indexing** on frequently queried fields
@@ -457,12 +508,14 @@ MEDIA_ROOT = BASE_DIR / 'media'
 ## 📈 Performance & Monitoring
 
 ### Performance Metrics
+
 - **Page load times**: 0.010s - 0.078s (Fast)
 - **Database queries**: Optimized with select_related/prefetch_related
 - **Template rendering**: Efficient with proper caching
 - **File uploads**: Optimized with proper file handling
 
 ### Monitoring & Analytics
+
 - **Business metrics tracking**
 - **Customer behavior analytics**
 - **Product performance monitoring**
@@ -472,6 +525,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 ## 🧪 Testing & Quality Assurance
 
 ### Testing Coverage
+
 - **URL pattern testing**: 19/20 working (99.5%)
 - **Model integrity testing**: 47/47 working (100%)
 - **View function testing**: 79/79 working (100%)
@@ -479,6 +533,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 - **Form validation testing**: 7/7 working (100%)
 
 ### Quality Metrics
+
 - **Critical issues**: 0
 - **Minor issues**: 1 (non-functional URL pattern)
 - **Security vulnerabilities**: 0
@@ -488,6 +543,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 ## 🚀 Deployment Considerations
 
 ### Production Readiness
+
 - **Security**: Robust authentication and authorization
 - **Performance**: Optimized database queries and caching
 - **Scalability**: Modular architecture for easy scaling
@@ -495,6 +551,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 - **Monitoring**: Comprehensive analytics and logging
 
 ### Environment Configuration
+
 ```python
 # Production settings recommendations
 DEBUG = False
@@ -514,6 +571,7 @@ DATABASES = {
 ## 📚 API Documentation
 
 ### Core Endpoints
+
 - `GET /` - Homepage
 - `POST /register/` - User registration
 - `POST /login/` - User authentication
@@ -522,6 +580,7 @@ DATABASES = {
 - `POST /checkout/checkout/` - Order placement
 
 ### Admin Endpoints
+
 - `GET /admin-panel/` - Admin dashboard
 - `GET /admin-panel/customers/` - Customer management
 - `GET /admin-panel/inventory/` - Product management
@@ -529,6 +588,7 @@ DATABASES = {
 - `GET /admin-panel/analytics/` - Analytics dashboard
 
 ### AJAX Endpoints
+
 - `POST /checkout/cart/loyalty/points/` - Apply loyalty points
 - `POST /checkout/cart/loyalty/reward/<id>/` - Apply loyalty reward
 - `POST /checkout/cart/loyalty/remove/` - Remove loyalty discount
@@ -536,17 +596,20 @@ DATABASES = {
 ## 🔄 Data Flow & Integration
 
 ### Customer Journey
+
 1. **Registration** → Profile Creation → Loyalty Account Creation
 2. **Browsing** → Product Views → Search History → Recommendations
 3. **Shopping** → Cart Management → Loyalty Redemption → Checkout
 4. **Order** → Order Processing → Loyalty Points Award → Analytics Update
 
 ### Admin Workflow
+
 1. **Authentication** → Role Verification → Dashboard Access
 2. **Management** → CRUD Operations → Audit Logging → Analytics Update
 3. **Analytics** → Data Aggregation → Report Generation → Decision Making
 
 ### AI/ML Integration Flow
+
 1. **User Registration** → Demographic Data → Category Prediction
 2. **Product Interaction** → Behavior Tracking → Recommendation Updates
 3. **Purchase History** → Association Rules → Cross-selling Opportunities
@@ -555,6 +618,7 @@ DATABASES = {
 ## 🎯 Business Logic
 
 ### E-commerce Workflow
+
 - **Product Catalog**: Hierarchical category structure with brands and specifications
 - **Shopping Cart**: Session-based cart with persistent storage for authenticated users
 - **Order Processing**: Multi-step workflow with status tracking and notifications
@@ -562,12 +626,14 @@ DATABASES = {
 - **Inventory Management**: Real-time stock tracking with low-stock alerts
 
 ### Loyalty Program Logic
+
 - **Point Earning**: 1 point per $1 spent, bonus points for reviews
 - **Tier Progression**: Automatic tier upgrades based on point thresholds
 - **Reward Redemption**: Flexible point-to-dollar conversion (100 points = $1)
 - **Expiration Policy**: Points expire after 12 months of inactivity
 
 ### Analytics & Reporting
+
 - **Real-time Metrics**: Live business performance tracking
 - **Customer Segmentation**: Behavioral and demographic analysis
 - **Product Performance**: Sales, views, and conversion tracking
@@ -577,6 +643,7 @@ DATABASES = {
 ## 🔧 Customization & Extension
 
 ### Adding New Features
+
 1. **Create new app**: `python manage.py startapp new_feature`
 2. **Define models**: Add to `new_feature/models.py`
 3. **Create views**: Add to `new_feature/views.py`
@@ -585,12 +652,14 @@ DATABASES = {
 6. **Run migrations**: `python manage.py makemigrations && python manage.py migrate`
 
 ### Extending Admin Panel
+
 1. **Add new views**: Extend `admin_panel/views.py`
 2. **Update menu**: Modify `admin_panel/utils.py`
 3. **Create templates**: Add to `admin_panel/templates/admin_panel/`
 4. **Update URLs**: Add to `admin_panel/urls.py`
 
 ### AI/ML Model Updates
+
 1. **Train new models**: Update `core/ml_service.py`
 2. **Save models**: Use joblib for persistence
 3. **Update predictions**: Modify prediction logic
@@ -599,12 +668,14 @@ DATABASES = {
 ## 📞 Support & Maintenance
 
 ### Troubleshooting
+
 - **Common Issues**: Check Django logs and error messages
 - **Database Issues**: Run `python manage.py check` and `python manage.py migrate`
 - **Template Issues**: Verify template inheritance and context variables
 - **Performance Issues**: Use Django Debug Toolbar for query analysis
 
 ### Maintenance Tasks
+
 - **Regular Backups**: Database and media files
 - **Log Rotation**: Manage log file sizes
 - **Performance Monitoring**: Track response times and database queries

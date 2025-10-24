@@ -944,3 +944,47 @@ INFO 2025-10-20 04:57:37,826 ml_service 71116 8541166848 Decision Tree model loa
 INFO 2025-10-20 04:57:38,574 ml_service 71116 8541166848 Association Rules model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_products_500_transactions_50k.joblib
 INFO 2025-10-20 04:58:12,090 ml_service 71471 8541166848 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
 INFO 2025-10-20 04:58:12,896 ml_service 71471 8541166848 Association Rules model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_products_500_transactions_50k.joblib
+INFO 2025-10-24 05:12:42,848 ml_service 84718 8656035072 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:12:43,650 ml_service 84718 8656035072 Association Rules model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_products_500_transactions_50k.joblib
+INFO 2025-10-24 05:16:20,922 views 84718 6268858368 Product 27 added to session cart, quantity: 1
+ERROR 2025-10-24 05:20:21,877 views 84718 6201552896 Profile not found for user: dylanguai
+ERROR 2025-10-24 05:21:25,799 views 84718 6285684736 Profile not found for user: dylanguai
+ERROR 2025-10-24 05:26:18,751 views 84718 6268858368 Profile not found for user: dylanguai
+ERROR 2025-10-24 05:31:49,106 views 84718 6218379264 Profile not found for user: dylanguai
+INFO 2025-10-24 05:38:08,938 ml_service 84718 6201552896 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:10,379 ml_service 84718 13120860160 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:12,100 ml_service 84718 13241544704 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:12,145 ml_service 84718 13285634048 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:12,217 ml_service 84718 13391687680 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:12,284 ml_service 84718 13328674816 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:13,647 ml_service 84718 13185921024 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:13,690 ml_service 84718 13359132672 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:13,978 ml_service 84718 13539586048 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:15,772 ml_service 84718 13705310208 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:16,036 ml_service 84718 13917171712 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:16,055 ml_service 84718 14241525760 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:16,251 ml_service 84718 14077702144 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:18,232 ml_service 84718 14174367744 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:18,805 ml_service 84718 14693560320 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:18,847 ml_service 84718 14052487168 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:21,859 ml_service 84718 14809001984 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:21,880 ml_service 84718 14110257152 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:21,961 ml_service 84718 14156492800 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:21,968 ml_service 84718 14138617856 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:26,697 ml_service 84718 14749184000 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:26,727 ml_service 84718 14662053888 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:27,470 ml_service 84718 15510597632 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:27,482 ml_service 84718 15630184448 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:35,670 ml_service 84718 16103239680 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:35,730 ml_service 84718 15442391040 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:35,909 ml_service 84718 15678468096 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:35,997 ml_service 84718 16021401600 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:38:49,690 ml_service 84718 6201552896 Association Rules model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_products_500_transactions_50k.joblib
+INFO 2025-10-24 05:39:09,819 ml_service 84718 18289766400 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:39:35,822 ml_service 84718 20948578304 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:39:37,148 ml_service 84718 21143711744 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:39:37,392 ml_service 84718 21226598400 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:43:05,030 ml_service 84718 13120860160 Association Rules model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_products_500_transactions_50k.joblib
+INFO 2025-10-24 05:43:38,555 ml_service 89662 8656035072 Decision Tree model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_customers_100.joblib
+INFO 2025-10-24 05:43:39,260 ml_service 89662 8656035072 Association Rules model loaded successfully from /Users/dylan/Documents/auroramart/ml_models/b2c_products_500_transactions_50k.joblib
+ERROR 2025-10-24 05:46:11,760 views 89662 6197112832 Profile not found for user: dylanguai

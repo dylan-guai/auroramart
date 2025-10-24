@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-"""Django's command-line utility for administrative tasks."""
+"""Django's command-line utility for administrative tasks.
+AuroraMart E-Commerce Platform Management Script."""
 import os
 import sys
 

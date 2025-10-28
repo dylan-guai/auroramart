@@ -159,7 +159,7 @@ def product_detail(request, product_id):
     # Check if product is in user's wishlist
     is_wished = False
     if request.user.is_authenticated:
-        from profiles.models import Wishlist
+        from online_store.profiles.models import Wishlist
         is_wished = Wishlist.objects.filter(
             user=request.user,
             product=product
